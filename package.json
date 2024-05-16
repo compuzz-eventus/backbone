@@ -42,11 +42,11 @@
     "prepublishOnly": "npm run test && npm run mark-release && npm run build && npm run alias-sourcemap && npm run doc && git add -u && npm run mark-develop"
   },
   "main": "backbone.js",
-  "version": "1.6.0",
+  "version": "1.6.0.1",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/jashkenas/backbone.git"
+    "url": "https://github.com/compuzz-eventus/backbone.git"
   },
   "files": [
     "backbone.js",
