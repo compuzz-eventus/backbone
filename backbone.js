@@ -523,7 +523,7 @@
       if (this.idAttribute in attrs) {
         var prevId = this.id;
         this.id = this.get(this.idAttribute);
-        if(!_.isEqual(prevId, this.id)) {
+        if (!_.isEqual(prevId, this.id) && !((_.isNull(this.id) || _.isUndefined(this.id)) && (_.isNull(prevId) || _.isUndefined(prevId)))) {
           this.trigger('changeId', this, prevId, options);
         }
       }
