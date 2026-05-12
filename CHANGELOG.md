@@ -55,7 +55,9 @@ compatibility with upstream Backbone.
   in `start()` and `navigate()`.
 - **`require('jquery')` swallowed every error**, not just `MODULE_NOT_FOUND`.
   ESM/CJS mismatches and corrupt installs now propagate instead of leaving
-  Backbone half-initialized.
+  Backbone half-initialized. jQuery 4's `jQuery requires a window with a
+  document` is also tolerated (Node-only Backbone use without DOM is
+  unaffected when jQuery 4 is present as a transitive dependency).
 - **`debugInfo` mis-identified bundled browser builds as Node** when bundlers
   (Webpack, etc.) injected a polyfilled `process`. Detection now requires
   `process.versions.node`.

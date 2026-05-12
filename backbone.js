@@ -25,8 +25,15 @@
     var _ = require('underscore'), $;
     // Tolerate jQuery being absent, but surface real load errors (corrupt
     // install, ESM/CJS mismatch, etc.) instead of starting up half-broken.
+    // - `MODULE_NOT_FOUND`: jquery isn't installed (intentional in Node-only
+    //   server-side use of Backbone, when Views/AJAX aren't needed).
+    // - `jQuery requires a window`: jQuery 4+ refuses to load in a no-DOM
+    //   Node context. Same outcome from Backbone's perspective — leave `$`
+    //   undefined so Models/Collections/Events still work.
     try { $ = require('jquery'); } catch (e) {
-      if (e.code !== 'MODULE_NOT_FOUND') throw e;
+      if (e.code !== 'MODULE_NOT_FOUND' && !/jquery requires/i.test(e.message)) {
+        throw e;
+      }
     }
     factory(root, exports, _, $);
 
