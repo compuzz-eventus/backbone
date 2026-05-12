@@ -43,6 +43,12 @@ compatibility with upstream Backbone.
   browser** despite the constructor specifically guarding for non-browser
   use. It now throws a clear `Backbone.history.start() requires a browser
   window` error instead.
+- **`Backbone.sync` was emitting the `request` event with the cloned options
+  object** (the internal clone introduced to stop `error`/`beforeSend` from
+  compounding). Listeners that mutate `opts` for instrumentation
+  (e.g. tagging a start timestamp on `request`, reading it on `sync`) saw
+  their mutations land on the discarded clone. `request` now fires with the
+  caller's own options, matching upstream behavior.
 - **`require('jquery')` swallowed every error**, not just `MODULE_NOT_FOUND`.
   ESM/CJS mismatches and corrupt installs now propagate instead of leaving
   Backbone half-initialized.
@@ -102,13 +108,15 @@ Regression coverage was added for every behavioral fix above:
 - `listenTo` cleans up `_listeningTo` when `obj.on` throws
 - `stopListening` keeps cleaning remaining listenees after re-entrancy
 - `Backbone.sync` does not mutate the caller-supplied options
+- `Backbone.sync` emits `request` with the caller options (mutations from a
+  `request` listener persist on the same object)
 - `Collection.add(model, {at: 'invalid'})` appends instead of corrupting
   the index
 - `Collection.set(null)` and `Collection.add(null)` return the collection
 - `Router.execute` ignores non-function callbacks instead of throwing
 - `extend()` static merge priority is what the docstring claims
 
-448 → 449 karma tests, all green.
+448 → 450 karma tests, all green.
 
 ## [1.6.2] — 2024-09-25
 

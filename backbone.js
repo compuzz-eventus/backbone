@@ -1681,7 +1681,10 @@
     // Preserve the public contract that `opts.xhr` reflects the live
     // request on the caller's options object.
     if (callerOptions) callerOptions.xhr = xhr;
-    model.trigger('request', model, xhr, options);
+    // Emit `request` against the caller's options so listeners that mutate
+    // `opts` (e.g. instrumentation) see those mutations on the same object
+    // that later `sync`/`error` listeners receive.
+    model.trigger('request', model, xhr, callerOptions || options);
     return xhr;
   };
 

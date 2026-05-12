@@ -169,6 +169,18 @@
     assert.strictEqual(opts.textStatus, undefined, 'textStatus only set on the internal clone, not the caller options');
   });
 
+  QUnit.test('`request` event sees the caller options, not the internal clone', function(assert) {
+    var model = new Backbone.Model();
+    model.url = '/test';
+    var opts = {};
+    model.on('request', function(m, xhr, eventOpts) {
+      eventOpts.tagFromRequestListener = 'tagged';
+    });
+    Backbone.sync('read', model, opts);
+    assert.strictEqual(opts.tagFromRequestListener, 'tagged',
+      'mutations from a `request` listener persist on the caller options');
+  });
+
   QUnit.test('Backbone.ajax', function(assert) {
     assert.expect(1);
     Backbone.ajax = function(settings) {
