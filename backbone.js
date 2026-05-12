@@ -523,7 +523,9 @@
       if (this.idAttribute in attrs) {
         var prevId = this.id;
         this.id = this.get(this.idAttribute);
-        if (!_.isEqual(prevId, this.id) && !((_.isNull(this.id) || _.isUndefined(this.id)) && (_.isNull(prevId) || _.isUndefined(prevId)))) {
+        // Skip the trigger when the id didn't really change, including the
+        // null <-> undefined transitions (which `_.isEqual` reports as different).
+        if (!_.isEqual(prevId, this.id) && !(prevId == null && this.id == null)) {
           this.trigger('changeId', this, prevId, options);
         }
       }
