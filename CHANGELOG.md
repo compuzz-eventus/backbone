@@ -107,6 +107,17 @@ compatibility with upstream Backbone.
 - `npm audit` is clean: 0 vulnerabilities. Down from 29 (2 low, 10
   moderate, 16 high, 1 critical) at the start of this release cycle.
 
+### Compatibility
+- **Verified against jQuery 4.0** (stable since January 2026) in addition
+  to the existing 1.8.x → 3.x range. Swapping jQuery 4 into the test
+  vendor directory: 450 karma tests green, 4 Node CoffeeScript tests
+  green. The only Backbone-side adjustment was widening the Node loader
+  guard (see *Fixed*) to absorb jQuery 4's `jQuery requires a window
+  with a document` error when loaded server-side without a DOM. None
+  of the 8 jQuery APIs Backbone consumes (`$()`, `$.ajax`, `.on`/`.off`
+  with namespaces, `.find`, `.remove`, `.attr`, `[0]`) was affected by
+  the 4.0 upgrade.
+
 ### Added (tests)
 Regression coverage was added for every behavioral fix above:
 - `changeId` only fires on real id changes (no spurious null/undefined
