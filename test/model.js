@@ -387,6 +387,33 @@
     assert.equal(model.isNew(), true);
   });
 
+  QUnit.test('changeId is only triggered when the id actually changes', function(assert) {
+    var triggers = [];
+    var model = new Backbone.Model();
+    model.on('changeId', function(m, prevId) { triggers.push(prevId); });
+
+    // undefined -> null and null -> undefined are not real id changes
+    model.set({id: null});
+    model.set({id: void 0});
+    assert.deepEqual(triggers, [], 'null <-> undefined transitions do not trigger changeId');
+
+    // undefined/null -> real id triggers once
+    model.set({id: 'a'});
+    assert.deepEqual(triggers, [undefined], 'first real id assignment triggers changeId');
+
+    // Setting the same id again is a no-op
+    model.set({id: 'a'});
+    assert.deepEqual(triggers, [undefined], 'setting the same id does not re-trigger');
+
+    // Changing id triggers with the previous value
+    model.set({id: 'b'});
+    assert.deepEqual(triggers, [undefined, 'a'], 'id change triggers with previous id');
+
+    // Real id -> null is still a change (model becomes new again)
+    model.set({id: null});
+    assert.deepEqual(triggers, [undefined, 'a', 'b'], 'clearing a real id triggers changeId');
+  });
+
   QUnit.test('setting an alternative cid prefix', function(assert) {
     assert.expect(4);
     var Model = Backbone.Model.extend({
