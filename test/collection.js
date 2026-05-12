@@ -204,6 +204,20 @@
     }
   });
 
+  QUnit.test('add with a non-numeric `at` falls back to appending instead of corrupting the collection', function(assert) {
+    var collection = new Backbone.Collection();
+    collection.add({id: 1}, {at: 'oops'});
+    assert.equal(collection.length, 1, 'model is added to models[]');
+    assert.equal(collection.at(0).id, 1, 'model lives at the end of the array');
+    assert.equal(collection.get(1), collection.at(0), '_byId index and models[] reference the same model');
+  });
+
+  QUnit.test('set(null) returns the collection (consistent with Model#set)', function(assert) {
+    var collection = new Backbone.Collection();
+    assert.strictEqual(collection.set(null), collection, 'set returns the collection');
+    assert.strictEqual(collection.add(null), collection, 'add (which delegates to set) also returns the collection');
+  });
+
   QUnit.test('add; at should have preference over comparator', function(assert) {
     assert.expect(1);
     var Col = Backbone.Collection.extend({

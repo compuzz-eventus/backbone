@@ -855,7 +855,7 @@
     // already exist in the collection, as necessary. Similar to **Model#set**,
     // the core operation for updating the data contained by the collection.
     set: function(models, options) {
-      if (models == null) return;
+      if (models == null) return this;
 
       options = _.extend({}, setOptions, options);
       if (options.parse && !this._isModel(models)) {
@@ -867,6 +867,11 @@
 
       var at = options.at;
       if (at != null) at = +at;
+      // Treat a non-numeric `at` (e.g. `+'foo'` -> NaN) as if it weren't
+      // provided, otherwise the comparisons below all short-circuit and the
+      // new models would be silently dropped from `this.models` while still
+      // being registered in `_byId`.
+      if (isNaN(at)) at = null;
       if (at > this.length) at = this.length;
       if (at < 0) at += this.length + 1;
 
@@ -1467,7 +1472,7 @@
     // A finer-grained `undelegateEvents` for removing a single delegated event.
     // `selector` and `listener` are both optional.
     undelegate: function(eventName, selector, listener) {
-      this.$el.off(eventName + '.delegateEvents' + this.cid, selector, listener);
+      if (this.$el) this.$el.off(eventName + '.delegateEvents' + this.cid, selector, listener);
       return this;
     },
 
@@ -1743,7 +1748,9 @@
       Backbone.history.route(route, function(fragment) {
         var args = router._extractParameters(route, fragment);
         if (router.execute(callback, args, name) !== false) {
-          router.trigger.apply(router, ['route:' + name].concat(args));
+          // Skip the named-route trigger when `name` is empty — otherwise
+          // listeners see a spurious `route:` event.
+          if (name) router.trigger.apply(router, ['route:' + name].concat(args));
           router.trigger('route', name, args);
           Backbone.history.trigger('route', router, name, args);
         }
@@ -1754,7 +1761,7 @@
     // Execute a route handler with the provided parameters.  This is an
     // excellent place to do pre-route setup or post-route cleanup.
     execute: function(callback, args, name) {
-      if (callback) callback.apply(this, args);
+      if (_.isFunction(callback)) callback.apply(this, args);
     },
 
     // Simple proxy to `Backbone.history` to save a fragment into the history.
@@ -1897,6 +1904,9 @@
     // an existing route, and `false` otherwise.
     start: function(options) {
       if (History.started) throw new Error('Backbone.history has already been started');
+      if (typeof window === 'undefined') {
+        throw new Error('Backbone.history.start() requires a browser window');
+      }
       History.started = true;
 
       // Figure out the initial configuration. Do we need an iframe?

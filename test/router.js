@@ -976,6 +976,22 @@
     Backbone.history.start();
   });
 
+  QUnit.test('Router#execute silently ignores a non-function callback instead of throwing', function(assert) {
+    assert.expect(1);
+    location.replace('http://example.com#weird');
+    Backbone.history.stop();
+    Backbone.history = _.extend(new Backbone.History, {location: location});
+    var MyRouter = Backbone.Router.extend({
+      // The `weird` handler is a string, not a function — used to throw
+      // TypeError once Backbone.history fired the route.
+      routes: {weird: 'weird'},
+      weird: 'not a function'
+    });
+    var myRouter = new MyRouter;
+    Backbone.history.start();
+    assert.ok(true, 'no TypeError was thrown');
+  });
+
   QUnit.test('pushState to hashChange with only search params.', function(assert) {
     assert.expect(1);
     Backbone.history.stop();
