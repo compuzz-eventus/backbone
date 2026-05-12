@@ -147,7 +147,8 @@
 
     // This object is not listening to any other events on `obj` yet.
     // Setup the necessary references to track the listening callbacks.
-    if (!listening) {
+    var isNewListening = !listening;
+    if (isNewListening) {
       this._listenId || (this._listenId = _.uniqueId('l'));
       listening = _listening = listeningTo[id] = new Listening(this, obj);
     }
@@ -156,7 +157,12 @@
     var error = tryCatchOn(obj, name, callback, this);
     _listening = void 0;
 
-    if (error) throw error;
+    if (error) {
+      // Roll back the bookkeeping we eagerly set up so the failed listenee
+      // doesn't stick around as a memory leak.
+      if (isNewListening) delete listeningTo[id];
+      throw error;
+    }
     // If the target obj is not Backbone.Events, track events manually.
     if (listening.interop) listening.on(name, callback);
 
@@ -209,9 +215,10 @@
     for (var i = 0; i < ids.length; i++) {
       var listening = listeningTo[ids[i]];
 
-      // If listening doesn't exist, this object is not currently
-      // listening to obj. Break out early.
-      if (!listening) break;
+      // If listening was already cleaned up (e.g. a previous iteration's
+      // `off` callback re-entered `stopListening` and removed it), skip
+      // this entry and keep processing the rest of the snapshot.
+      if (!listening) continue;
 
       listening.obj.off(name, callback, this);
       if (listening.interop) listening.off(name, callback);

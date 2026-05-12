@@ -158,6 +158,41 @@
     b.trigger('event2');
   });
 
+  QUnit.test('listenTo cleans up the listening bookkeeping when obj.on throws', function(assert) {
+    var listener = _.extend({}, Backbone.Events);
+    var broken = {on: function() { throw new Error('boom'); }};
+    assert['throws'](function() {
+      listener.listenTo(broken, 'x', function() {});
+    }, /boom/, 'the original error propagates');
+    assert.deepEqual(listener._listeningTo, {}, '_listeningTo holds no orphan reference to the broken listenee');
+  });
+
+  QUnit.test('stopListening keeps cleaning remaining listenees when a callback removes another', function(assert) {
+    var listener = _.extend({}, Backbone.Events);
+    var a = _.extend({}, Backbone.Events);
+    var b = _.extend({}, Backbone.Events);
+    var c = _.extend({}, Backbone.Events);
+
+    listener.listenTo(a, 'x', function() {});
+    listener.listenTo(b, 'x', function() {});
+    listener.listenTo(c, 'x', function() {});
+
+    // Make `a.off` reach back into `listener` and remove `b` from its
+    // listenees. This simulates the kind of re-entrancy that can happen
+    // through a non-Backbone Events interop layer.
+    var origOff = a.off;
+    a.off = function() {
+      listener.stopListening(b);
+      return origOff.apply(this, arguments);
+    };
+
+    listener.stopListening();
+    // After a full cleanup, `_listeningTo` is reset to `undefined`. With the
+    // pre-fix `break` behavior, `c`'s Listening would have remained, leaving
+    // `_listeningTo` as a non-empty object.
+    assert.strictEqual(listener._listeningTo, void 0, 'every listenee in the original snapshot is cleaned up, including the ones after the re-entrancy');
+  });
+
   QUnit.test('listenToOnce', function(assert) {
     assert.expect(2);
     // Same as the previous test, but we use once rather than having to explicitly unbind
