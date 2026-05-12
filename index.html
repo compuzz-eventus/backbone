@@ -300,10 +300,10 @@
   <div id="sidebar" class="interface">
 
     <a class="toc_title" href="#">
-      Backbone.js <span class="version">(1.6.0)</span>
+      Backbone.js <span class="version">(1.6.3)</span>
     </a>
     <ul class="toc_section">
-      <li>&raquo; <a href="http://github.com/jashkenas/backbone">GitHub Repository</a></li>
+      <li>&raquo; <a href="https://github.com/compuzz-eventus/backbone">GitHub Repository</a></li>
       <li>&raquo; <a href="docs/backbone.html">Annotated Source</a></li>
     </ul>
 
@@ -580,19 +580,21 @@
     </p>
 
     <p>
-      The project is <a href="http://github.com/jashkenas/backbone/">hosted on GitHub</a>,
+      The project is <a href="https://github.com/compuzz-eventus/backbone/">hosted on GitHub</a>
+      (a maintenance fork of the <a href="http://github.com/jashkenas/backbone/">original repository</a>
+      taking over from version 1.6.2 onwards),
       and the <a href="docs/backbone.html">annotated source code</a> is available,
       as well as an online <a href="test/">test suite</a>,
       an <a href="examples/todos/index.html">example application</a>,
       a <a href="https://github.com/jashkenas/backbone/wiki/Tutorials%2C-blog-posts-and-example-sites">list of tutorials</a>
       and a <a href="#examples">long list of real-world projects</a> that use Backbone.
-      Backbone is available for use under the <a href="http://github.com/jashkenas/backbone/blob/master/LICENSE">MIT software license</a>.
+      Backbone is available for use under the <a href="https://github.com/compuzz-eventus/backbone/blob/master/LICENSE">MIT software license</a>.
     </p>
 
     <p>
       You can report bugs and discuss features on the
-      <a href="http://github.com/jashkenas/backbone/issues">GitHub issues page</a>,
-      or add pages to the <a href="https://github.com/jashkenas/backbone/wiki">wiki</a>.
+      <a href="https://github.com/compuzz-eventus/backbone/issues">GitHub issues page</a>,
+      or browse the original project's <a href="https://github.com/jashkenas/backbone/wiki">wiki</a>.
     </p>
 
     <p>
@@ -609,18 +611,18 @@
 
     <table>
       <tr>
-        <td><a class="punch" href="backbone.js">Development Version (1.6.0)</a></td>
+        <td><a class="punch" href="backbone.js">Development Version (1.6.3)</a></td>
         <td class="text"><i>72kb, Full source, tons of comments</i></td>
       </tr>
       <tr>
-        <td><a class="punch" href="backbone-min.js">Production Version (1.6.0)</a></td>
+        <td><a class="punch" href="backbone-min.js">Production Version (1.6.3)</a></td>
         <td class="text" style="line-height: 16px;">
           <i>7.9kb, Packed and gzipped</i><br />
           <small>(<a href="backbone-min.map">Source Map</a>)</small>
         </td>
       </tr>
       <tr>
-        <td><a class="punch" href="https://raw.github.com/jashkenas/backbone/master/backbone.js">Edge Version (master)</a></td>
+        <td><a class="punch" href="https://raw.githubusercontent.com/compuzz-eventus/backbone/master/backbone.js">Edge Version (master)</a></td>
         <td>
           <i>Unreleased, use at your own risk</i>
         </td>
@@ -3316,7 +3318,7 @@ Backbone.$ = require('jquery');
       <b class="header">debugInfo</b><code>debugInfo();</code>
       <br />
       In the unfortunate event that you need to submit a
-      <a href="https://github.com/jashkenas/backbone/issues/new?template=Bugs.yml">bug
+      <a href="https://github.com/compuzz-eventus/backbone/issues/new?template=Bugs.yml">bug
       report</a>, this function makes it easier to provide detailed information
       about your setup. It prints a JSON object with version information about
       Backbone and its dependencies through <tt>console.debug</tt>. It also
@@ -4553,6 +4555,136 @@ ActiveRecord::Base.include_root_in_json = false
     </div>
 
     <h2 id="changelog">Change Log</h2>
+
+    <b class="header" id="1.6.3">1.6.3</b> &mdash; <small><i>May. 12, 2026</i></small>
+    &mdash; <a href="https://github.com/compuzz-eventus/backbone/compare/1.6.2...1.6.3">Diff</a>
+    &mdash; <a href="https://cdn.statically.io/gh/compuzz-eventus/backbone/1.6.3/index.html">Docs</a>
+    <br />
+    <ul style="margin-top: 5px;">
+      <li>
+        Fixed a memory leak in <tt>Events.listenTo</tt> where the new
+        <tt>Listening</tt> bookkeeping survived a throw from the listenee's
+        own <tt>on</tt> method.
+      </li>
+      <li>
+        Fixed <tt>Events.stopListening()</tt> abandoning the rest of its
+        snapshot when a callback re-entered <tt>stopListening</tt> for one
+        of the still-pending listenees (<tt>break</tt> changed to
+        <tt>continue</tt>).
+      </li>
+      <li>
+        <tt>Backbone.sync</tt> no longer mutates the caller's options
+        object. Repeated calls with the same options used to compound the
+        <tt>error</tt> and <tt>beforeSend</tt> wrappers; sync now works on
+        a shallow clone while still surfacing <tt>xhr</tt>,
+        <tt>textStatus</tt> and <tt>errorThrown</tt> on the caller object
+        as before.
+      </li>
+      <li>
+        <tt>Collection.set</tt> / <tt>add</tt>: a non-numeric
+        <tt>options.at</tt> (e.g. <tt>'oops'</tt>) used to silently leave
+        the new model registered in <tt>_byId</tt> but not in
+        <tt>this.models</tt>. It is now treated as if <tt>at</tt> were
+        omitted (append).
+      </li>
+      <li>
+        <tt>Collection.set(null)</tt> now returns the collection, matching
+        <tt>Model.set(null)</tt> and keeping <tt>add(null)</tt> chainable.
+      </li>
+      <li>
+        <tt>Router.execute</tt> now requires a callable; previously a
+        string handler (<tt>this[name]</tt> resolved to a string) threw
+        <tt>TypeError</tt>. The companion <tt>route:</tt> event with an
+        empty name is also suppressed.
+      </li>
+      <li>
+        <tt>View.undelegate</tt> now mirrors <tt>undelegateEvents</tt>'s
+        <tt>if (this.$el)</tt> guard, so subclasses that null out
+        <tt>$el</tt> on remove no longer crash.
+      </li>
+      <li>
+        <tt>Backbone.history.start()</tt> throws a clear error outside the
+        browser instead of crashing on a bare <tt>window</tt> reference.
+      </li>
+      <li>
+        The CommonJS entry no longer swallows non-<tt>MODULE_NOT_FOUND</tt>
+        errors from <tt>require('jquery')</tt>; ESM/CJS mismatches and
+        corrupt installs now propagate.
+      </li>
+      <li>
+        <tt>debugInfo</tt> uses <tt>process.versions.node</tt> to
+        distinguish a real Node runtime from a Webpack-polyfilled
+        <tt>process</tt> stub in bundled browser builds.
+      </li>
+      <li>
+        <tt>extend()</tt> static-merge priority is now
+        <tt>staticProps</tt> &gt; child's own preexisting &gt; parent.
+        Parent statics no longer silently clobber statics already set on
+        a user-supplied constructor.
+      </li>
+      <li>
+        Simplified the <tt>changeId</tt> guard expression to
+        <tt>!_.isEqual(prevId, this.id) &amp;&amp; !(prevId == null
+        &amp;&amp; this.id == null)</tt>; behavior unchanged.
+      </li>
+      <li>
+        Replaced PhantomJS (archived 2018) with puppeteer-bundled Chrome
+        Headless for the karma test runner.
+      </li>
+      <li>
+        Migrated the ESLint configuration from three nested
+        <tt>.eslintrc</tt> files to a single <tt>eslint.config.js</tt>
+        (flat config). Stylistic rules now come from
+        <tt>@stylistic/eslint-plugin</tt>; deprecated rules
+        (<tt>no-catch-shadow</tt>, <tt>no-native-reassign</tt>,
+        <tt>no-negated-in-lhs</tt>, <tt>no-new-object</tt>,
+        <tt>no-spaced-func</tt>) replaced or removed.
+      </li>
+      <li>
+        Added <tt>.gitattributes</tt> (<tt>* text=auto eol=lf</tt>) to
+        keep line endings consistent across Windows / macOS / Linux
+        checkouts.
+      </li>
+      <li>
+        Bumped <tt>underscore</tt> from 1.13.2 to 1.13.8, picking up the
+        fix for
+        <a href="https://github.com/advisories/GHSA-qpx9-hpmf-5gmw">GHSA-qpx9-hpmf-5gmw</a>
+        (unbounded recursion DoS in <tt>_.flatten</tt> and
+        <tt>_.isEqual</tt>). Range tightened from <tt>&gt;=1.8.3</tt> to
+        <tt>^1.8.3</tt>.
+      </li>
+      <li>
+        <tt>npm audit</tt> is clean (0 vulnerabilities, down from 29 at
+        the start of this release cycle). All other devDependencies
+        bumped: rollup 3 &rarr; 4, puppeteer 22 &rarr; 24, cpy-cli 3
+        &rarr; 7, replace-in-file 7 &rarr; 8, ESLint 8 &rarr; 10.
+      </li>
+    </ul>
+
+    <b class="header" id="1.6.2">1.6.2</b> &mdash; <small><i>Sep. 25, 2024</i></small>
+    &mdash; <a href="https://github.com/compuzz-eventus/backbone/compare/1.6.1...1.6.2">Diff</a>
+    <br />
+    <ul style="margin-top: 5px;">
+      <li>
+        <tt>Model.set</tt> no longer fires a spurious <tt>changeId</tt>
+        event when the new and previous id values are both
+        null/undefined. <tt>_.isEqual(null, undefined)</tt> returns
+        <tt>false</tt> in Underscore, so the previous <tt>!_.isEqual</tt>
+        guard missed this case.
+      </li>
+    </ul>
+
+    <b class="header" id="1.6.1">1.6.1</b> &mdash; <small><i>May. 16, 2024</i></small>
+    &mdash; <a href="https://github.com/compuzz-eventus/backbone/compare/1.6.0...1.6.1">Diff</a>
+    <br />
+    <ul style="margin-top: 5px;">
+      <li>
+        <tt>Model.set</tt> no longer fires a <tt>changeId</tt> event when
+        the id value is set but unchanged. Previously the event was
+        unconditional, forcing collections to perform redundant
+        <tt>_byId</tt> reindex work on every model attribute change.
+      </li>
+    </ul>
 
     <b class="header" id="1.6.0">1.6.0</b> &mdash; <small><i>Feb. 5, 2024</i></small>
     &mdash; <a href="https://github.com/jashkenas/backbone/compare/1.5.0...1.6.0">Diff</a>
