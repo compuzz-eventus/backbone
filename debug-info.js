@@ -23,7 +23,9 @@
     };
     if (typeof root.Deno !== 'undefined') {
       info.deno = _.pick(root.Deno, 'version', 'build');
-    } else if (typeof root.process !== 'undefined') {
+      // `process.versions.node` is what tells a real Node from a Webpack-polyfilled
+      // `process` object that may exist in a bundled browser build.
+    } else if (typeof root.process !== 'undefined' && root.process.versions && root.process.versions.node) {
       info.process = _.pick(root.process, 'version', 'platform', 'arch');
     } else if (typeof root.navigator !== 'undefined') {
       info.navigator = _.pick(root.navigator, 'userAgent', 'platform', 'webdriver');
