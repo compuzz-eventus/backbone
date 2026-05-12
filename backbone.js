@@ -2150,7 +2150,12 @@
     }
 
     // Add static properties to the constructor function, if supplied.
-    _.extend(child, parent, staticProps);
+    // Priority: `staticProps` wins, then the child constructor's own
+    // pre-existing statics, then the parent fills any remaining gaps. The
+    // older `_.extend(child, parent, staticProps)` form let parent statics
+    // silently clobber statics the caller had already set on a user-supplied
+    // constructor — which is unwanted.
+    _.defaults(_.extend(child, staticProps), parent);
 
     // Set the prototype chain to inherit from `parent`, without calling
     // `parent`'s constructor function and add the prototype properties.

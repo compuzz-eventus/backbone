@@ -1503,4 +1503,19 @@
     assert.equal(model.id, 3);
   });
 
+  QUnit.test('extend static merge priority: staticProps > child preexisting > parent', function(assert) {
+    var Parent = Backbone.Model.extend({}, {greet: 'parent', fromParent: 'P', overridden: 'P'});
+    function MyCtor() { Parent.apply(this, arguments); }
+    MyCtor.greet = 'child';
+    MyCtor.fromChild = 'C';
+    MyCtor.overridden = 'C';
+    var Sub = Parent.extend.call(Parent, {constructor: MyCtor}, {fromStatic: 'S', overridden: 'S'});
+    assert.strictEqual(Sub, MyCtor, 'extend returns the user-supplied constructor');
+    assert.strictEqual(Sub.greet, 'child', 'pre-existing static on the user constructor survives the parent static of the same name');
+    assert.strictEqual(Sub.fromChild, 'C', 'pre-existing child-only static survives');
+    assert.strictEqual(Sub.fromParent, 'P', 'parent static fills the gap when child has none');
+    assert.strictEqual(Sub.overridden, 'S', 'staticProps wins over both child preexisting and parent');
+    assert.strictEqual(typeof Sub.extend, 'function', 'extend itself is still inherited from parent');
+  });
+
 })(QUnit);
