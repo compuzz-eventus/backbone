@@ -23,7 +23,11 @@
   // Next for Node.js or CommonJS. jQuery may not be needed as a module.
   } else if (typeof exports !== 'undefined') {
     var _ = require('underscore'), $;
-    try { $ = require('jquery'); } catch (e) {}
+    // Tolerate jQuery being absent, but surface real load errors (corrupt
+    // install, ESM/CJS mismatch, etc.) instead of starting up half-broken.
+    try { $ = require('jquery'); } catch (e) {
+      if (e.code !== 'MODULE_NOT_FOUND') throw e;
+    }
     factory(root, exports, _, $);
 
   // Finally, as a browser global.
