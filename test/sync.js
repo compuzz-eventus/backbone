@@ -156,6 +156,19 @@
     Backbone.sync('create', model);
   });
 
+  QUnit.test('Backbone.sync does not mutate the caller-supplied options', function(assert) {
+    var model = new Backbone.Model();
+    model.url = '/test';
+    var userError = function() {};
+    var userBeforeSend = function() {};
+    var opts = {error: userError, beforeSend: userBeforeSend, emulateHTTP: true};
+    Backbone.sync('update', model, opts);
+    assert.strictEqual(opts.error, userError, 'error handler is not re-wrapped on the caller options');
+    assert.strictEqual(opts.beforeSend, userBeforeSend, 'beforeSend is not re-wrapped on the caller options');
+    assert.ok('xhr' in opts, 'xhr is still exposed on the caller options (public API contract)');
+    assert.strictEqual(opts.textStatus, undefined, 'textStatus only set on the internal clone, not the caller options');
+  });
+
   QUnit.test('Backbone.ajax', function(assert) {
     assert.expect(1);
     Backbone.ajax = function(settings) {

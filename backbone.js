@@ -1610,8 +1610,14 @@
   Backbone.sync = function(method, model, options) {
     var type = methodMap[method];
 
+    // Work on a shallow clone so we don't mutate the caller's options.
+    // Without this, wrapping `error` / `beforeSend` would compound on
+    // repeated `Backbone.sync` calls with the same options object.
+    var callerOptions = options;
+    options = options ? _.clone(options) : {};
+
     // Default options, unless specified.
-    _.defaults(options || (options = {}), {
+    _.defaults(options, {
       emulateHTTP: Backbone.emulateHTTP,
       emulateJSON: Backbone.emulateJSON
     });
@@ -1653,16 +1659,23 @@
       params.processData = false;
     }
 
-    // Pass along `textStatus` and `errorThrown` from jQuery.
+    // Pass along `textStatus` and `errorThrown` from jQuery. They are surfaced
+    // on the caller's options so that the wrapError -> model.trigger('error')
+    // chain delivers them to listeners with the original options object.
     var error = options.error;
     options.error = function(xhr, textStatus, errorThrown) {
-      options.textStatus = textStatus;
-      options.errorThrown = errorThrown;
+      if (callerOptions) {
+        callerOptions.textStatus = textStatus;
+        callerOptions.errorThrown = errorThrown;
+      }
       if (error) error.call(options.context, xhr, textStatus, errorThrown);
     };
 
     // Make the request, allowing the user to override any Ajax options.
     var xhr = options.xhr = Backbone.ajax(_.extend(params, options));
+    // Preserve the public contract that `opts.xhr` reflects the live
+    // request on the caller's options object.
+    if (callerOptions) callerOptions.xhr = xhr;
     model.trigger('request', model, xhr, options);
     return xhr;
   };
