@@ -17,7 +17,7 @@ For Docs, License, Tests, pre-packed downloads, and everything else, really, see
 https://backbonejs.org
 
 To suggest a feature or report a bug:
-https://github.com/jashkenas/backbone/issues
+https://github.com/compuzz-eventus/backbone/issues
 
 For questions on working with Backbone or general discussions:
 [security policy](SECURITY.md),
