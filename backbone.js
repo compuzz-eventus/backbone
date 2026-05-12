@@ -1263,7 +1263,6 @@
 
   // Defining an @@iterator method implements JavaScript's Iterable protocol.
   // In modern ES2015 browsers, this value is found at Symbol.iterator.
-  /* global Symbol */
   var $$iterator = typeof Symbol === 'function' && Symbol.iterator;
   if ($$iterator) {
     Collection.prototype[$$iterator] = Collection.prototype.values;
