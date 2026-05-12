@@ -1,3 +1,7 @@
+// Use the Chromium bundled by puppeteer so CI doesn't need a system Chrome.
+// Override CHROME_BIN if you want to point at a specific browser binary.
+process.env.CHROME_BIN = process.env.CHROME_BIN || require('puppeteer').executablePath();
+
 // Note some browser launchers should be installed before using karma start.
 // For example:
 // npm install karma-firefox-launcher
@@ -38,16 +42,16 @@ module.exports = function(config) {
 
     // start these browsers
     // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
-    browsers: ['PhantomJS'],
+    browsers: ['ChromeHeadlessNoSandbox'],
 
     // Continuous Integration mode
     // if true, Karma captures browsers, runs the tests and exits
     singleRun: true,
 
-    // See http://stackoverflow.com/a/27873086/1517919
     customLaunchers: {
-        Chrome_sandbox: {
-            base: 'Chrome',
+        // --no-sandbox is required when running inside containers / CI
+        ChromeHeadlessNoSandbox: {
+            base: 'ChromeHeadless',
             flags: ['--no-sandbox']
         }
     }
