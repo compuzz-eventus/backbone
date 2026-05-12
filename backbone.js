@@ -1985,6 +1985,11 @@
     // Disable Backbone.history, perhaps temporarily. Not useful in a real app,
     // but possibly useful for unit testing Routers.
     stop: function() {
+      // Mirror the non-browser guard in `start()`: a `stop()` call before any
+      // successful `start()` (typical in test cleanup or non-browser code) is
+      // a no-op rather than a `ReferenceError` on `window`/`document`.
+      if (!History.started) return;
+
       // Add a cross-platform `removeEventListener` shim for older browsers.
       var removeEventListener = window.removeEventListener || function(eventName, listener) {
         return detachEvent('on' + eventName, listener);

@@ -49,6 +49,10 @@ compatibility with upstream Backbone.
   (e.g. tagging a start timestamp on `request`, reading it on `sync`) saw
   their mutations land on the discarded clone. `request` now fires with the
   caller's own options, matching upstream behavior.
+- **`Backbone.history.stop()` threw `ReferenceError` outside a browser**
+  when called before any successful `start()` (typical in test cleanup).
+  Now early-returns when `History.started` is false, mirroring the guard
+  in `start()` and `navigate()`.
 - **`require('jquery')` swallowed every error**, not just `MODULE_NOT_FOUND`.
   ESM/CJS mismatches and corrupt installs now propagate instead of leaving
   Backbone half-initialized.
