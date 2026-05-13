@@ -1703,10 +1703,89 @@
     'read': 'GET'
   };
 
-  // Set the default implementation of `Backbone.ajax` to proxy through to `$`.
+  // Set the default implementation of `Backbone.ajax`. Prefers jQuery's
+  // `$.ajax` when `Backbone.$` is present (full jqXHR contract preserved),
+  // otherwise falls back to a native `fetch()`-based adapter that supports
+  // the subset of jQuery options Backbone itself consumes: `type`, `url`,
+  // `data`, `contentType`, `dataType`, `headers`, `beforeSend`, `success`,
+  // and `error`. The return value is a thenable with `.abort()`.
   // Override this if you'd like to use a different library.
-  Backbone.ajax = function() {
-    return Backbone.$.ajax.apply(Backbone.$, arguments);
+  Backbone.ajax = function(options) {
+    if (Backbone.$ && Backbone.$.ajax) {
+      return Backbone.$.ajax.apply(Backbone.$, arguments);
+    }
+    return fetchAjax(options);
+  };
+
+  // Adapter from the jQuery $.ajax option contract that `Backbone.sync`
+  // produces, to native `fetch`. Used only when Backbone.$ is absent.
+  var fetchAjax = function(options) {
+    var url = options.url;
+    var method = (options.type || 'GET').toUpperCase();
+    var headers = _.extend({}, options.headers);
+    if (options.contentType) headers['Content-Type'] = options.contentType;
+    var body;
+
+    if (options.data != null) {
+      if (method === 'GET' || method === 'HEAD') {
+        var qs = typeof options.data === 'string'
+          ? options.data
+          : new URLSearchParams(options.data).toString();
+        if (qs) url += (url.indexOf('?') === -1 ? '?' : '&') + qs;
+      } else if (typeof options.data === 'string') {
+        body = options.data;
+      } else if (options.contentType === 'application/x-www-form-urlencoded') {
+        body = new URLSearchParams(options.data).toString();
+      } else {
+        body = JSON.stringify(options.data);
+      }
+    }
+
+    var controller = new AbortController();
+    var xhr = {
+      abort: function() { controller.abort(); },
+      setRequestHeader: function(k, v) { headers[k] = v; }
+    };
+
+    if (options.beforeSend) options.beforeSend(xhr);
+
+    var promise = fetch(url, {
+      method: method,
+      headers: headers,
+      body: body,
+      credentials: options.credentials,
+      signal: controller.signal
+    }).then(function(response) {
+      xhr.status = response.status;
+      xhr.statusText = response.statusText;
+      return response.text().then(function(text) {
+        xhr.responseText = text;
+        var parseJson = options.dataType == null || options.dataType === 'json';
+        var data = text;
+        if (parseJson && text) {
+          try { data = JSON.parse(text); }
+          catch (e) {
+            if (options.error) options.error(xhr, 'parsererror', e.message);
+            throw e;
+          }
+        }
+        if (!response.ok) {
+          if (options.error) options.error(xhr, 'error', response.statusText);
+          var httpError = new Error(response.statusText);
+          httpError.xhr = xhr;
+          throw httpError;
+        }
+        if (options.success) options.success(data, 'success', xhr);
+        return data;
+      });
+    }, function(err) {
+      if (err.name === 'AbortError') throw err;
+      if (options.error) options.error(xhr, 'error', err.message || String(err));
+      throw err;
+    });
+
+    promise.abort = function() { controller.abort(); };
+    return promise;
   };
 
   // Backbone.Router
