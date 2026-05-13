@@ -300,7 +300,7 @@
   <div id="sidebar" class="interface">
 
     <a class="toc_title" href="#">
-      Backbone.js <span class="version">(1.6.3)</span>
+      Backbone.js <span class="version">(1.7.0)</span>
     </a>
     <ul class="toc_section">
       <li>&raquo; <a href="https://github.com/compuzz-eventus/backbone">GitHub Repository</a></li>
@@ -611,11 +611,11 @@
 
     <table>
       <tr>
-        <td><a class="punch" href="backbone.js">Development Version (1.6.3)</a></td>
+        <td><a class="punch" href="backbone.js">Development Version (1.7.0)</a></td>
         <td class="text"><i>72kb, Full source, tons of comments</i></td>
       </tr>
       <tr>
-        <td><a class="punch" href="backbone-min.js">Production Version (1.6.3)</a></td>
+        <td><a class="punch" href="backbone-min.js">Production Version (1.7.0)</a></td>
         <td class="text" style="line-height: 16px;">
           <i>7.9kb, Packed and gzipped</i><br />
           <small>(<a href="backbone-min.map">Source Map</a>)</small>
@@ -633,11 +633,13 @@
       Backbone's only hard dependency is
       <a href="http://underscorejs.org/">Underscore.js</a> <small>( >= 1.8.3)</small>.
       For RESTful persistence and DOM manipulation with <a href="#View">Backbone.View</a>,
-      include <b><a href="https://jquery.com/">jQuery</a></b> ( >= 1.11.0).
-      <i>(Mimics of the Underscore and jQuery APIs, such as
-      <a href="https://lodash.com/">Lodash</a> and
-      <a href="http://zeptojs.com/">Zepto</a>, will
-      also tend to work, with varying degrees of compatibility.)</i>
+      include <b><a href="https://jquery.com/">jQuery</a></b> ( >= 1.11.0); without
+      jQuery, <tt>Backbone.ajax</tt> falls back to a native <tt>fetch()</tt>
+      adapter (since 1.7.0), so <a href="#Model">Model</a>/<a href="#Collection">Collection</a>
+      persistence still works.
+      <i>(Mimics of the Underscore API, such as
+      <a href="https://lodash.com/">Lodash</a>, will also tend to work, with
+      varying degrees of compatibility.)</i>
     </p>
     <h2 id="Getting-started">Getting Started</h2>
 
@@ -2800,12 +2802,6 @@ var Router = Backbone.Router.extend({
       initial route to trigger when starting History, pass <tt>silent: true</tt>.
     </p>
 
-    <p>
-      Because hash-based history in Internet Explorer relies on an
-      <tt>&lt;iframe&gt;</tt>, be sure to call <tt>start()</tt> only after the DOM
-      is ready.
-    </p>
-
 <pre>
 $(function(){
   new WorkspaceRouter();
@@ -4555,6 +4551,55 @@ ActiveRecord::Base.include_root_in_json = false
     </div>
 
     <h2 id="changelog">Change Log</h2>
+
+    <b class="header" id="1.7.0">1.7.0</b> &mdash; <small><i>May. 13, 2026</i></small>
+    &mdash; <a href="https://github.com/compuzz-eventus/backbone/compare/1.6.3...1.7.0">Diff</a>
+    &mdash; <a href="https://cdn.statically.io/gh/compuzz-eventus/backbone/1.7.0/index.html">Docs</a>
+    <br />
+    <ul style="margin-top: 5px;">
+      <li>
+        <tt>Backbone.ajax</tt> now falls back to a native <tt>fetch()</tt>
+        adapter when <tt>Backbone.$</tt> is absent. The jQuery path is
+        preserved verbatim when jQuery is present. The fallback maps the
+        jQuery options that <tt>Backbone.sync</tt> consumes (<tt>type</tt>,
+        <tt>url</tt>, <tt>data</tt>, <tt>contentType</tt>,
+        <tt>dataType</tt>, <tt>headers</tt>, <tt>beforeSend</tt>,
+        <tt>success</tt>, <tt>error</tt>) onto <tt>fetch()</tt> +
+        <tt>AbortController</tt>, and returns a thenable with
+        <tt>.abort()</tt> so the <tt>var xhr = model.fetch();
+        xhr.abort();</tt> pattern keeps working.
+      </li>
+      <li>
+        Dropped the hidden iframe trick that simulated <tt>hashchange</tt>
+        for IE7, along with the <tt>setInterval</tt> polling fallback for
+        browsers without <tt>onhashchange</tt> and the
+        <tt>attachEvent</tt> / <tt>detachEvent</tt> shims around
+        <tt>addEventListener</tt> / <tt>removeEventListener</tt>. Modern
+        browsers only.
+      </li>
+      <li>
+        Dropped Zepto and Ender from the browser-global <tt>$</tt>
+        resolution chain in the UMD factory; only jQuery (or
+        <tt>$</tt>) remains. <tt>History#getHash</tt> loses its unused
+        <tt>window</tt> argument.
+      </li>
+      <li>
+        Every prototype method literal on <tt>Model</tt>,
+        <tt>Collection</tt>, <tt>View</tt>, <tt>Router</tt> and
+        <tt>History</tt> now uses ES6 method shorthand
+        (<tt>methodName(args) { ... }</tt> instead of
+        <tt>methodName: function(args) { ... }</tt>). Pure syntactic, no
+        behavior change. The function-style constructors are preserved
+        on purpose to keep the documented
+        <tt>Backbone.Model.apply(this, arguments)</tt> pattern working
+        in user-provided <tt>constructor:</tt> overrides.
+      </li>
+      <li>
+        Migrated the package manager from npm to Yarn 4.14 (pinned via
+        Corepack and the <tt>packageManager</tt> field), and bumped CI
+        Node 14 &rarr; 20 (Yarn 4 requires Node &ge; 18.12).
+      </li>
+    </ul>
 
     <b class="header" id="1.6.3">1.6.3</b> &mdash; <small><i>May. 12, 2026</i></small>
     &mdash; <a href="https://github.com/compuzz-eventus/backbone/compare/1.6.2...1.6.3">Diff</a>
