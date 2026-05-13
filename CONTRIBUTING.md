@@ -33,9 +33,10 @@ right Yarn version automatically:
 ```sh
 corepack enable
 yarn install
-yarn test       # karma headless + lint
-yarn lint       # ESLint only
-yarn build      # regenerate backbone-min.js
+yarn test            # vitest (jsdom) + node inheritance + lint
+yarn test:coverage   # same + V8 coverage report in ./coverage/index.html
+yarn lint            # ESLint only
+yarn build           # regenerate backbone-min.js
 ```
 
 Do not run `npm install` — it would create a `package-lock.json` that

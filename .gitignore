@@ -4,6 +4,7 @@ raw
 node_modules
 .idea
 .claude
+coverage
 
 # Yarn 4 (Berry) — node-modules linker, no Zero-Install
 .yarn/*

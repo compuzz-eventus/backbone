@@ -11,14 +11,11 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     globals: true,
-    // Share module instances across test files. The QUnit shim and
-    // legacy `test/setup/environment.js` install per-test hooks
-    // (`QUnit.testStart`) on the Backbone object loaded once in
-    // `_setup.js`; isolating each file would give it its own Backbone
-    // and orphan the hooks.
+    // Don't fork a fresh worker per test file. The QUnit shim and the
+    // legacy `test/setup/environment.js` install per-test hooks on the
+    // Backbone object loaded once in `_setup.js`; isolating each file
+    // would give it its own Backbone and orphan the hooks.
     isolate: false,
-    pool: 'forks',
-    poolOptions: {forks: {singleFork: true}},
     setupFiles: ['./test/_setup.js'],
     include: ['test/*.js'],
     exclude: [
@@ -27,6 +24,22 @@ export default defineConfig({
       'test/_qunit-shim.js',
       // Node-runtime inheritance test runs separately via `node ...`
       'test/model-inheritance.js'
-    ]
+    ],
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'html', 'lcov'],
+      reportsDirectory: './coverage',
+      // Only instrument the actual library source; debug-info.js is a
+      // rollup-built bundle and the .mjs facade is a one-liner.
+      include: ['backbone.js'],
+      // Reasonable starting bar for a 459-test suite against a single
+      // ~2200-line file.
+      thresholds: {
+        lines: 85,
+        functions: 85,
+        statements: 85,
+        branches: 75
+      }
+    }
   }
 });

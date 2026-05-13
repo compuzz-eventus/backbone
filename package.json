@@ -18,6 +18,7 @@
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@stylistic/eslint-plugin": "^5.10.0",
+    "@vitest/coverage-v8": "^4.1.6",
     "cpy-cli": "^7.0.0",
     "docco": "^0.9.1",
     "eslint": "^10.3.0",
@@ -34,6 +35,7 @@
   },
   "scripts": {
     "test": "vitest run && node test/model-inheritance.js && yarn lint",
+    "test:coverage": "vitest run --coverage",
     "build": "terser backbone.js --compress --mangle --source-map \"url='backbone-min.js.map'\" --comments \"/^!|@preserve|@license|@cc_on/i\" -o backbone-min.js",
     "build-debug": "rollup -e backbone -f umd -g backbone:Backbone -n Backbone.debugInfo -o debug-info.js --no-strict modules/debug-info.js",
     "alias-sourcemap": "cpy --rename=backbone-min.map backbone-min.js.map .",
