@@ -7,6 +7,30 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 Upstream Backbone's own release notes (1.6.0 and earlier) live in
 [`index.html`](./index.html#changelog).
 
+## [1.7.1] — 2026-05-13
+
+A single fix on top of 1.7.0 that any consumer of
+`@compuzz-eventus/backbone` will want to pick up immediately.
+
+### Fixed
+- **`postinstall` no longer pollutes consumer projects.** The
+  1.7.0 release wired `simple-git-hooks` straight onto the `postinstall`
+  npm lifecycle script, which meant every project pulling
+  `@compuzz-eventus/backbone` in as a dependency would have
+  `simple-git-hooks` attempt to install a `pre-commit` hook into
+  *their* `.git/hooks/` directory. `postinstall` now delegates to a
+  small `scripts/install-hooks.cjs` guard that compares
+  `process.env.INIT_CWD` against the package root: when the two match
+  (a contributor cloning and running `yarn install`) hooks are
+  installed; when they differ (this package being pulled in as a
+  transitive dependency) the script no-ops. The new script ships in
+  the published `files` list so the postinstall doesn't ENOENT on
+  consumer installs.
+
+Consumers of 1.7.0 who worked around the bug with
+`dependenciesMeta."@compuzz-eventus/backbone@1.7.0".built: false` can
+remove that override after bumping to 1.7.1.
+
 ## [1.7.0] — 2026-05-13
 
 Drops the dead IE6/IE7 code paths, modernizes prototype method syntax to
@@ -209,6 +233,7 @@ Regression coverage was added for every behavioral fix above:
   collections to perform redundant `_byId` reindex work on every model
   attribute change.
 
+[1.7.1]: https://github.com/compuzz-eventus/backbone/compare/1.7.0...1.7.1
 [1.7.0]: https://github.com/compuzz-eventus/backbone/compare/1.6.3...1.7.0
 [1.6.3]: https://github.com/compuzz-eventus/backbone/compare/1.6.2...1.6.3
 [1.6.2]: https://github.com/compuzz-eventus/backbone/compare/1.6.1...1.6.2

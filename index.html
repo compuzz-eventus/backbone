@@ -300,7 +300,7 @@
   <div id="sidebar" class="interface">
 
     <a class="toc_title" href="#">
-      Backbone.js <span class="version">(1.7.0)</span>
+      Backbone.js <span class="version">(1.7.1)</span>
     </a>
     <ul class="toc_section">
       <li>&raquo; <a href="https://github.com/compuzz-eventus/backbone">GitHub Repository</a></li>
@@ -611,11 +611,11 @@
 
     <table>
       <tr>
-        <td><a class="punch" href="backbone.js">Development Version (1.7.0)</a></td>
+        <td><a class="punch" href="backbone.js">Development Version (1.7.1)</a></td>
         <td class="text"><i>72kb, Full source, tons of comments</i></td>
       </tr>
       <tr>
-        <td><a class="punch" href="backbone-min.js">Production Version (1.7.0)</a></td>
+        <td><a class="punch" href="backbone-min.js">Production Version (1.7.1)</a></td>
         <td class="text" style="line-height: 16px;">
           <i>7.9kb, Packed and gzipped</i><br />
           <small>(<a href="backbone-min.map">Source Map</a>)</small>
@@ -4551,6 +4551,25 @@ ActiveRecord::Base.include_root_in_json = false
     </div>
 
     <h2 id="changelog">Change Log</h2>
+
+    <b class="header" id="1.7.1">1.7.1</b> &mdash; <small><i>May. 13, 2026</i></small>
+    &mdash; <a href="https://github.com/compuzz-eventus/backbone/compare/1.7.0...1.7.1">Diff</a>
+    &mdash; <a href="https://cdn.statically.io/gh/compuzz-eventus/backbone/1.7.1/index.html">Docs</a>
+    <br />
+    <ul style="margin-top: 5px;">
+      <li>
+        Fixed a packaging bug introduced in 1.7.0: the
+        <tt>postinstall</tt> script ran <tt>simple-git-hooks</tt>
+        unconditionally, which meant any project pulling
+        <tt>@compuzz-eventus/backbone</tt> as a dependency had a
+        <tt>pre-commit</tt> hook installed into <i>its own</i>
+        <tt>.git/hooks/</tt>. The postinstall now delegates to a
+        small guard that runs <tt>simple-git-hooks</tt> only when the
+        install was initiated from this package's own root
+        (<tt>INIT_CWD === packageRoot</tt>) and no-ops when this
+        package is a transitive dependency.
+      </li>
+    </ul>
 
     <b class="header" id="1.7.0">1.7.0</b> &mdash; <small><i>May. 13, 2026</i></small>
     &mdash; <a href="https://github.com/compuzz-eventus/backbone/compare/1.6.3...1.7.0">Diff</a>

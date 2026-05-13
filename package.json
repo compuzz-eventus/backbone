@@ -45,7 +45,7 @@
     "mark-develop": "replace-in-file MARK_RELEASE MARK_DEVELOPMENT modules/debug-info.js && yarn build-debug",
     "prepublishOnly": "yarn test && yarn mark-release && yarn build && yarn alias-sourcemap && yarn doc",
     "postpublish": "yarn mark-develop",
-    "postinstall": "simple-git-hooks"
+    "postinstall": "node scripts/install-hooks.cjs"
   },
   "simple-git-hooks": {
     "pre-commit": "yarn lint-staged"
@@ -64,7 +64,7 @@
     "./modules/debug-info": "./modules/debug-info.js",
     "./package.json": "./package.json"
   },
-  "version": "1.7.0",
+  "version": "1.7.1",
   "license": "MIT",
   "packageManager": "yarn@4.14.1",
   "repository": {
@@ -80,6 +80,7 @@
     "debug-info.js",
     "LICENSE",
     "modules/debug-info.js",
-    "modules/package.json"
+    "modules/package.json",
+    "scripts/install-hooks.cjs"
   ]
 }
