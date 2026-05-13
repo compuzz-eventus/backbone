@@ -1656,8 +1656,25 @@
   // having to worry about render order ... and makes it easy for the view to
   // react to specific changes in the state of your models.
 
-  // Creating a Backbone.View creates its initial element outside of the DOM,
-  // if an existing element is not provided...
+  /**
+   * Creating a Backbone.View creates its initial element outside of the
+   * DOM if an existing element is not provided. Properties from
+   * `options` listed in `viewOptions` (`model`, `collection`, `el`,
+   * `id`, `attributes`, `className`, `tagName`, `events`) are copied
+   * onto the instance before `initialize` runs.
+   *
+   * @class Backbone.View
+   * @mixes Backbone.Events
+   * @param {Object} [options]
+   * @param {Backbone.Model} [options.model]
+   * @param {Backbone.Collection} [options.collection]
+   * @param {HTMLElement|string} [options.el]
+   * @param {string} [options.id]
+   * @param {string} [options.className]
+   * @param {string} [options.tagName] Element tag name (default `"div"`).
+   * @param {Object} [options.attributes] HTML attributes for the element.
+   * @param {Object} [options.events] Delegated DOM event map.
+   */
   var View = Backbone.View = function(options) {
     this.cid = _.uniqueId('view');
     this.preinitialize.apply(this, arguments);
@@ -1678,44 +1695,65 @@
     // The default `tagName` of a View's element is `"div"`.
     tagName: 'div',
 
-    // jQuery delegate for element lookup, scoped to DOM elements within the
-    // current view. This should be preferred to global lookups where possible.
+    /**
+     * jQuery delegate for element lookup, scoped to DOM elements within
+     * the current view. Should be preferred to global lookups where
+     * possible.
+     * @param {string} selector
+     * @returns {*} jQuery-wrapped match set.
+     */
     $(selector) {
       return this.$el.find(selector);
     },
 
-    // preinitialize is an empty function by default. You can override it with a function
-    // or object.  preinitialize will run before any instantiation logic is run in the View
+    /**
+     * Empty function by default. Override it with a function or object.
+     * `preinitialize` runs before any instantiation logic is run in the
+     * View.
+     */
     preinitialize() {},
 
-    // Initialize is an empty function by default. Override it with your own
-    // initialization logic.
+    /**
+     * Empty function by default. Override it with your own initialization
+     * logic.
+     */
     initialize() {},
 
-    // **render** is the core function that your view should override, in order
-    // to populate its element (`this.el`), with the appropriate HTML. The
-    // convention is for **render** to always return `this`.
+    /**
+     * Core function that your view should override to populate its
+     * element (`this.el`) with the appropriate HTML. Convention is for
+     * `render` to always return `this` for chaining.
+     * @returns {this}
+     */
     render() {
       return this;
     },
 
-    // Remove this view by taking the element out of the DOM, and removing any
-    // applicable Backbone.Events listeners.
+    /**
+     * Remove this view by taking the element out of the DOM and clearing
+     * all Backbone.Events listeners.
+     * @returns {this}
+     */
     remove() {
       this._removeElement();
       this.stopListening();
       return this;
     },
 
-    // Remove this view's element from the document and all event listeners
-    // attached to it. Exposed for subclasses using an alternative DOM
-    // manipulation API.
+    /**
+     * Remove this view's element from the document. Exposed for
+     * subclasses using an alternative DOM manipulation API.
+     */
     _removeElement() {
       this.$el.remove();
     },
 
-    // Change the view's element (`this.el` property) and re-delegate the
-    // view's events on the new element.
+    /**
+     * Change the view's element (`this.el` property) and re-delegate the
+     * view's events on the new element.
+     * @param {HTMLElement|string|*} element CSS selector, HTML element, or jQuery-wrapped element.
+     * @returns {this}
+     */
     setElement(element) {
       this.undelegateEvents();
       this._setElement(element);
@@ -1723,29 +1761,36 @@
       return this;
     },
 
-    // Creates the `this.el` and `this.$el` references for this view using the
-    // given `el`. `el` can be a CSS selector or an HTML string, a jQuery
-    // context or an element. Subclasses can override this to utilize an
-    // alternative DOM manipulation API and are only required to set the
-    // `this.el` property.
+    /**
+     * Create the `this.el` and `this.$el` references for this view using
+     * the given `el`. `el` can be a CSS selector or an HTML string, a
+     * jQuery context, or an element. Subclasses can override this to use
+     * an alternative DOM manipulation API; they are only required to
+     * set the `this.el` property.
+     * @param {*} el
+     */
     _setElement(el) {
       this.$el = el instanceof Backbone.$ ? el : Backbone.$(el);
       this.el = this.$el[0];
     },
 
-    // Set callbacks, where `this.events` is a hash of
-    //
-    // *{"event selector": "callback"}*
-    //
-    //     {
-    //       'mousedown .title':  'edit',
-    //       'click .button':     'save',
-    //       'click .open':       function(e) { ... }
-    //     }
-    //
-    // pairs. Callbacks will be bound to the view, with `this` set properly.
-    // Uses event delegation for efficiency.
-    // Omitting the selector binds the event to `this.el`.
+    /**
+     * Set callbacks, where `this.events` is a hash of
+     * `{"event selector": "callback"}` pairs. Callbacks are bound to the
+     * view, with `this` set properly. Uses event delegation for
+     * efficiency. Omitting the selector binds the event to `this.el`.
+     *
+     * Example:
+     * ```
+     * {
+     *   'mousedown .title':  'edit',
+     *   'click .button':     'save',
+     *   'click .open':       function(e) { ... }
+     * }
+     * ```
+     * @param {Object} [events] Defaults to `_.result(this, 'events')`.
+     * @returns {this}
+     */
     delegateEvents(events) {
       events || (events = _.result(this, 'events'));
       if (!events) return this;
@@ -1760,39 +1805,61 @@
       return this;
     },
 
-    // Add a single event listener to the view's element (or a child element
-    // using `selector`). This only works for delegate-able events: not `focus`,
-    // `blur`, and not `change`, `submit`, and `reset` in Internet Explorer.
+    /**
+     * Add a single event listener to the view's element (or a child
+     * element using `selector`). Only works for delegate-able events:
+     * not `focus`, `blur`, and not `change`, `submit`, `reset` in older
+     * IE.
+     * @param {string} eventName
+     * @param {string} [selector]
+     * @param {Function} listener
+     * @returns {this}
+     */
     delegate(eventName, selector, listener) {
       this.$el.on(eventName + '.delegateEvents' + this.cid, selector, listener);
       return this;
     },
 
-    // Clears all callbacks previously bound to the view by `delegateEvents`.
-    // You usually don't need to use this, but may wish to if you have multiple
-    // Backbone views attached to the same DOM element.
+    /**
+     * Clear all callbacks previously bound to the view by
+     * `delegateEvents`. Usually unnecessary, but useful if multiple
+     * Backbone views are attached to the same DOM element.
+     * @returns {this}
+     */
     undelegateEvents() {
       if (this.$el) this.$el.off('.delegateEvents' + this.cid);
       return this;
     },
 
-    // A finer-grained `undelegateEvents` for removing a single delegated event.
-    // `selector` and `listener` are both optional.
+    /**
+     * Finer-grained `undelegateEvents` for removing a single delegated
+     * event. `selector` and `listener` are both optional.
+     * @param {string} eventName
+     * @param {string} [selector]
+     * @param {Function} [listener]
+     * @returns {this}
+     */
     undelegate(eventName, selector, listener) {
       if (this.$el) this.$el.off(eventName + '.delegateEvents' + this.cid, selector, listener);
       return this;
     },
 
-    // Produces a DOM element to be assigned to your view. Exposed for
-    // subclasses using an alternative DOM manipulation API.
+    /**
+     * Produce a DOM element to be assigned to this view. Exposed for
+     * subclasses using an alternative DOM manipulation API.
+     * @param {string} tagName
+     * @returns {HTMLElement}
+     */
     _createElement(tagName) {
       return document.createElement(tagName);
     },
 
-    // Ensure that the View has a DOM element to render into.
-    // If `this.el` is a string, pass it through `$()`, take the first
-    // matching element, and re-assign it to `el`. Otherwise, create
-    // an element from the `id`, `className` and `tagName` properties.
+    /**
+     * Ensure that the View has a DOM element to render into. If
+     * `this.el` is a string, pass it through `$()`, take the first match,
+     * and re-assign. Otherwise, create an element from `id`, `className`,
+     * and `tagName`.
+     */
     _ensureElement() {
       if (!this.el) {
         var attrs = _.extend({}, _.result(this, 'attributes'));
@@ -1805,8 +1872,11 @@
       }
     },
 
-    // Set attributes from a hash on this view's element.  Exposed for
-    // subclasses using an alternative DOM manipulation API.
+    /**
+     * Set attributes from a hash on this view's element. Exposed for
+     * subclasses using an alternative DOM manipulation API.
+     * @param {Object} attributes
+     */
     _setAttributes(attributes) {
       this.$el.attr(attributes);
     }
@@ -2091,8 +2161,16 @@
   // Backbone.Router
   // ---------------
 
-  // Routers map faux-URLs to actions, and fire events when routes are
-  // matched. Creating a new one sets its `routes` hash, if not set statically.
+  /**
+   * Routers map faux-URLs to actions, and fire events when routes are
+   * matched. Creating a new one sets its `routes` hash, if not set
+   * statically on the subclass.
+   *
+   * @class Backbone.Router
+   * @mixes Backbone.Events
+   * @param {Object} [options]
+   * @param {Object} [options.routes] Route map (`'fragment': 'methodName'`).
+   */
   var Router = Backbone.Router = function(options) {
     options || (options = {});
     this.preinitialize.apply(this, arguments);
@@ -2111,20 +2189,31 @@
   // Set up all inheritable **Backbone.Router** properties and methods.
   _.extend(Router.prototype, Events, {
 
-    // preinitialize is an empty function by default. You can override it with a function
-    // or object.  preinitialize will run before any instantiation logic is run in the Router.
+    /**
+     * Empty function by default. Override it with a function or object.
+     * `preinitialize` runs before any instantiation logic is run in the
+     * Router.
+     */
     preinitialize() {},
 
-    // Initialize is an empty function by default. Override it with your own
-    // initialization logic.
+    /**
+     * Empty function by default. Override it with your own initialization
+     * logic.
+     */
     initialize() {},
 
-    // Manually bind a single named route to a callback. For example:
-    //
-    //     this.route('search/:query/p:num', 'search', function(query, num) {
-    //       ...
-    //     });
-    //
+    /**
+     * Manually bind a single named route to a callback. For example:
+     * ```
+     * this.route('search/:query/p:num', 'search', function(query, num) {
+     *   ...
+     * });
+     * ```
+     * @param {string|RegExp} route Route pattern.
+     * @param {string|Function} [name] Event suffix, or the callback if no name.
+     * @param {Function} [callback] Defaults to `this[name]`.
+     * @returns {this}
+     */
     route(route, name, callback) {
       if (!_.isRegExp(route)) route = this._routeToRegExp(route);
       if (_.isFunction(name)) {
@@ -2146,13 +2235,26 @@
       return this;
     },
 
-    // Execute a route handler with the provided parameters.  This is an
-    // excellent place to do pre-route setup or post-route cleanup.
+    /**
+     * Execute a route handler with the provided parameters. Excellent
+     * place to do pre-route setup or post-route cleanup. Return `false`
+     * to suppress the `route` event.
+     * @param {Function} callback
+     * @param {Array} args Extracted from the fragment.
+     * @param {string} name Route name (empty for anonymous routes).
+     * @returns {*}
+     */
     execute(callback, args, name) {
       if (_.isFunction(callback)) callback.apply(this, args);
     },
 
-    // Simple proxy to `Backbone.history` to save a fragment into the history.
+    /**
+     * Simple proxy to `Backbone.history` to save a fragment into the
+     * browser history.
+     * @param {string} fragment
+     * @param {Object|boolean} [options] If `true`, equivalent to `{trigger: true}`.
+     * @returns {this}
+     */
     navigate(fragment, options) {
       Backbone.history.navigate(fragment, options);
       return this;
@@ -2199,11 +2301,18 @@
   // Backbone.History
   // ----------------
 
-  // Handles history management, based on either
-  // [pushState](https://developer.mozilla.org/en-US/docs/Web/API/History/pushState)
-  // and real URLs, or
-  // [onhashchange](https://developer.mozilla.org/en-US/docs/Web/API/Window/hashchange_event)
-  // and URL fragments.
+  /**
+   * Handles history management, based on either
+   * [pushState](https://developer.mozilla.org/en-US/docs/Web/API/History/pushState)
+   * and real URLs, or
+   * [onhashchange](https://developer.mozilla.org/en-US/docs/Web/API/Window/hashchange_event)
+   * and URL fragments. The default `Backbone.history` instance is
+   * created automatically; consumers typically call its `start()`
+   * method to begin route dispatch.
+   *
+   * @class Backbone.History
+   * @mixes Backbone.Events
+   */
   var History = Backbone.History = function() {
     this.handlers = [];
     this.checkUrl = this.checkUrl.bind(this);
@@ -2230,39 +2339,58 @@
   // Set up all inheritable **Backbone.History** properties and methods.
   _.extend(History.prototype, Events, {
 
-    // Are we at the app root?
+    /**
+     * Are we at the app root?
+     * @returns {boolean}
+     */
     atRoot() {
       var path = this.location.pathname.replace(/[^\/]$/, '$&/');
       return path === this.root && !this.getSearch();
     },
 
-    // Does the pathname match the root?
+    /**
+     * Does the pathname match the root?
+     * @returns {boolean}
+     */
     matchRoot() {
       var path = this.decodeFragment(this.location.pathname);
       var rootPath = path.slice(0, this.root.length - 1) + '/';
       return rootPath === this.root;
     },
 
-    // Unicode characters in `location.pathname` are percent encoded so they're
-    // decoded for comparison. `%25` should not be decoded since it may be part
-    // of an encoded parameter.
+    /**
+     * Unicode characters in `location.pathname` are percent-encoded, so
+     * they're decoded for comparison. `%25` is left encoded since it may
+     * be part of an encoded parameter.
+     * @param {string} fragment
+     * @returns {string}
+     */
     decodeFragment(fragment) {
       return decodeURI(fragment.replace(/%25/g, '%2525'));
     },
 
-    // Extract the search/query portion of the URL, excluding the hash.
+    /**
+     * Extract the search/query portion of the URL, excluding the hash.
+     * @returns {string}
+     */
     getSearch() {
       var match = this.location.href.replace(/#.*/, '').match(/\?.+/);
       return match ? match[0] : '';
     },
 
-    // Get the hash value from the current URL.
+    /**
+     * Get the hash value from the current URL.
+     * @returns {string}
+     */
     getHash() {
       var match = this.location.href.match(/#(.*)$/);
       return match ? match[1] : '';
     },
 
-    // Get the pathname and search params, without the root.
+    /**
+     * Get the pathname and search params, without the root.
+     * @returns {string}
+     */
     getPath() {
       var path = this.decodeFragment(
         this.location.pathname + this.getSearch()
@@ -2270,7 +2398,11 @@
       return path.charAt(0) === '/' ? path.slice(1) : path;
     },
 
-    // Get the cross-browser normalized URL fragment from the path or hash.
+    /**
+     * Get the normalized URL fragment from the path or hash.
+     * @param {string} [fragment] Optional explicit fragment.
+     * @returns {string}
+     */
     getFragment(fragment) {
       if (fragment == null) {
         if (this._usePushState || !this._wantsHashChange) {
@@ -2282,8 +2414,18 @@
       return fragment.replace(routeStripper, '');
     },
 
-    // Start the hash change handling, returning `true` if the current URL matches
-    // an existing route, and `false` otherwise.
+    /**
+     * Start the hash-change handling, returning the result of loading the
+     * current URL.
+     * @param {Object} [options]
+     * @param {string} [options.root='/']
+     * @param {boolean} [options.pushState] Use HTML5 pushState instead of hashes.
+     * @param {boolean} [options.hashChange=true]
+     * @param {boolean} [options.trailingSlash]
+     * @param {boolean} [options.silent] If true, don't dispatch the initial URL.
+     * @returns {boolean|undefined}
+     * @throws {Error} If already started, or called outside a browser.
+     */
     start(options) {
       if (History.started) throw new Error('Backbone.history has already been started');
       if (typeof window === 'undefined') {
@@ -2336,8 +2478,10 @@
       if (!this.options.silent) return this.loadUrl();
     },
 
-    // Disable Backbone.history, perhaps temporarily. Not useful in a real app,
-    // but possibly useful for unit testing Routers.
+    /**
+     * Disable Backbone.history, perhaps temporarily. Not useful in a real
+     * app, but possibly useful for unit-testing Routers.
+     */
     stop() {
       // Mirror the non-browser guard in `start()`: a `stop()` call before any
       // successful `start()` (typical in test cleanup or non-browser code) is
@@ -2354,14 +2498,21 @@
       History.started = false;
     },
 
-    // Add a route to be tested when the fragment changes. Routes added later
-    // may override previous routes.
+    /**
+     * Add a route to be tested when the fragment changes. Routes added
+     * later may override earlier routes.
+     * @param {RegExp} route
+     * @param {Function} callback
+     */
     route(route, callback) {
       this.handlers.unshift({route: route, callback: callback});
     },
 
-    // Checks the current URL to see if it has changed, and if it has,
-    // calls `loadUrl`.
+    /**
+     * Check the current URL; if it has changed, call `loadUrl`.
+     * @param {Event} [e]
+     * @returns {boolean|undefined}
+     */
     checkUrl(e) {
       var current = this.getFragment();
       if (current === this.fragment) {
@@ -2371,9 +2522,13 @@
       this.loadUrl();
     },
 
-    // Attempt to load the current URL fragment. If a route succeeds with a
-    // match, returns `true`. If no defined routes matches the fragment,
-    // returns `false`.
+    /**
+     * Attempt to load the current URL fragment. Returns `true` if a route
+     * matched, `false` otherwise (the `notfound` event is fired in that
+     * case).
+     * @param {string} [fragment]
+     * @returns {boolean}
+     */
     loadUrl(fragment) {
       // If the root doesn't match, no routes can match either.
       if (!this.matchRoot()) return this.notfound();
@@ -2386,21 +2541,27 @@
       }) || this.notfound();
     },
 
-    // When no route could be matched, this method is called internally to
-    // trigger the `'notfound'` event. It returns `false` so that it can be used
-    // in tail position.
+    /**
+     * Called internally when no route matched. Triggers the `notfound`
+     * event. Returns `false` so it can be used in tail position.
+     * @returns {false}
+     */
     notfound() {
       this.trigger('notfound');
       return false;
     },
 
-    // Save a fragment into the hash history, or replace the URL state if the
-    // 'replace' option is passed. You are responsible for properly URL-encoding
-    // the fragment in advance.
-    //
-    // The options object can contain `trigger: true` if you wish to have the
-    // route callback be fired (not usually desirable), or `replace: true`, if
-    // you wish to modify the current URL without adding an entry to the history.
+    /**
+     * Save a fragment into the hash history, or replace the URL state if
+     * `options.replace` is true. You're responsible for properly
+     * URL-encoding the fragment in advance.
+     *
+     * @param {string} fragment
+     * @param {Object|boolean} [options] If `true`, equivalent to `{trigger: true}`.
+     * @param {boolean} [options.trigger] If true, fire the matched route callback.
+     * @param {boolean} [options.replace] If true, replace the current URL instead of pushing.
+     * @returns {boolean|undefined}
+     */
     navigate(fragment, options) {
       if (!History.started) return false;
       if (!options || options === true) options = {trigger: !!options};
