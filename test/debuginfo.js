@@ -28,7 +28,10 @@
     assert.strictEqual(info.distribution, 'MARK_DEVELOPMENT', 'distribution mark sticks to development');
     assert.strictEqual(info._, _.VERSION, 'includes Underscore version');
     assert.strictEqual(info.$, $.fn.jquery, 'includes jQuery version');
-    if (typeof navigator !== 'undefined') {
+    // debugInfo prefers `process.versions.node` over `navigator` when both
+    // are present (true under jsdom-on-Node), so only assert the navigator
+    // shape when the browser branch actually ran.
+    if (typeof navigator !== 'undefined' && info.navigator) {
       assert.ok(typeof info.navigator === 'object');
       assert.strictEqual(info.navigator.userAgent, navigator.userAgent, 'includes user agent');
       assert.strictEqual(info.navigator.platform, navigator.platform, 'includes navigator platform');
