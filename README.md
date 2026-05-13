@@ -11,9 +11,6 @@
     (_.———————————————————————————————————————————————————————————————————————————————._)
 
 
-[![Test](https://github.com/compuzz-eventus/backbone/actions/workflows/tests.yml/badge.svg)](https://github.com/compuzz-eventus/backbone/actions/workflows/tests.yml)
-[![CodeQL](https://github.com/compuzz-eventus/backbone/actions/workflows/codeql.yml/badge.svg)](https://github.com/compuzz-eventus/backbone/actions/workflows/codeql.yml)
-
 Backbone supplies structure to JavaScript-heavy applications by providing models with key-value binding and custom events, collections with a rich API of enumerable functions, views with declarative event handling, and connects it all to your existing application over a RESTful JSON interface.
 
 ## About this fork
