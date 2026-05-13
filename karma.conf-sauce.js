@@ -1,37 +1,15 @@
 var _ = require('underscore');
 
-// Browsers to run on Sauce Labs platforms
+// Browsers to run on Sauce Labs platforms. Targets the ES2022 evergreen
+// baseline declared in 1.7.0 (Chrome 94+, Firefox 93+, Safari 15.4+,
+// Edge Chromium). IE, pre-Blink Edge, and Safari < 15 were dropped with
+// the IE6/IE7 cleanup; testing them on Sauce was burning minutes on
+// platforms Backbone no longer supports.
 var sauceBrowsers = _.reduce([
   ['firefox', 'latest'],
-  ['firefox', '60'],
-  ['firefox', '40'],
-  // TODO: find a way to get testing on old Firefox to work. (#4253)
-  // ['firefox', '11'],
-
   ['chrome', 'latest'],
-  ['chrome', '60'],
-  // TODO: these versions of Chrome fail with a mysterious
-  // "_T_ is not defined" (#4253)
-  // ['chrome', '40'],
-  // ['chrome', '26'],
-
-  // latest Edge as well as pre-Blink versions
   ['microsoftedge', 'latest', 'Windows 11'],
-  ['microsoftedge', '18', 'Windows 10'],
-  ['microsoftedge', '13', 'Windows 10'],
-
-  ['internet explorer', 'latest', 'Windows 10'],
-  // TODO: these versions of IE run 50 out of 425 tests, then hang for unknown
-  // reasons. (#4253)
-  // ['internet explorer', '10', 'Windows 8'],
-  // ['internet explorer', '9', 'Windows 7'],
-  // Older versions of IE no longer supported by Sauce Labs
-
-  ['safari', 'latest', 'macOS 12'],
-  ['safari', '12', 'macOS 10.14'],
-  ['safari', '11', 'macOS 10.13'],
-  ['safari', '8', 'OS X 10.10'],
-
+  ['safari', 'latest', 'macOS 13']
 ], function(memo, platform) {
   // internet explorer -> ie
   var label = platform[0].split(' ');
