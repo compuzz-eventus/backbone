@@ -52,6 +52,12 @@ module.exports = function(config) {
       'test/*.js'
     ],
 
+    // Node-runtime tests; they ship in `test/*.js` glob but must not load
+    // in a browser.
+    exclude: [
+      'test/model-inheritance.js'
+    ],
+
     // Number of sauce tests to start in parallel
     concurrency: 4,
 

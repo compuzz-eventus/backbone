@@ -22,6 +22,12 @@ module.exports = function(config) {
         'test/*.js'
     ],
 
+    // Files in the `files` glob that are Node-runtime tests, not browser
+    // tests. They run separately via `node ...` in the `test` script.
+    exclude: [
+        'test/model-inheritance.js'
+    ],
+
     // test results reporter to use
     // possible values: 'dots', 'progress'
     // available reporters: https://npmjs.org/browse/keyword/karma-reporter
