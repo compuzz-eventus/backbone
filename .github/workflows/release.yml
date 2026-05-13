@@ -1,0 +1,53 @@
+name: Release
+
+# Triggered when a `vX.Y.Z` tag is pushed. Publishes the package to npm
+# with a Sigstore-backed provenance attestation (`--provenance`), which
+# bakes a cryptographic statement into the tarball saying "this was
+# built by this exact workflow at this commit". Consumers can verify it
+# with `npm audit signatures`.
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+      - 'v[0-9]+.[0-9]+.[0-9]+-*'
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      # Required for npm provenance: lets GitHub mint an OIDC token that
+      # npm and Sigstore use to sign the package.
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Verify tag matches package.json version
+        run: |
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          PKG_VERSION=$(node -p "require('./package.json').version")
+          if [ "$TAG_VERSION" != "$PKG_VERSION" ]; then
+            echo "Tag $GITHUB_REF_NAME does not match package.json version $PKG_VERSION" >&2
+            exit 1
+          fi
+
+      - name: Install dependencies
+        run: yarn install --immutable
+
+      - name: Run prepublish chain
+        run: yarn prepublishOnly
+
+      - name: Publish to npm with provenance
+        run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
