@@ -31,11 +31,11 @@
     "qunit": "^2.17.2",
     "replace-in-file": "^8.4.0",
     "rollup": "^4.60.3",
-    "uglify-js": "^3.14.5"
+    "terser": "^5.47.1"
   },
   "scripts": {
     "test": "karma start && node test/model-inheritance.js && yarn lint",
-    "build": "uglifyjs backbone.js --mangle --source-map url=backbone-min.js.map -o backbone-min.js",
+    "build": "terser backbone.js --compress --mangle --source-map \"url='backbone-min.js.map'\" --comments \"/^!|@preserve|@license|@cc_on/i\" -o backbone-min.js",
     "build-debug": "rollup -e backbone -f umd -g backbone:Backbone -n Backbone.debugInfo -o debug-info.js --no-strict modules/debug-info.js",
     "alias-sourcemap": "cpy --rename=backbone-min.map backbone-min.js.map .",
     "doc": "docco backbone.js && docco examples/todos/todos.js examples/backbone.localStorage.js",
