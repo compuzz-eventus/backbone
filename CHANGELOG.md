@@ -7,6 +7,64 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 Upstream Backbone's own release notes (1.6.0 and earlier) live in
 [`index.html`](./index.html#changelog).
 
+## [1.7.0] — 2026-05-13
+
+Drops the dead IE6/IE7 code paths, modernizes prototype method syntax to
+ES6 shorthand, ships a native `fetch()` fallback for `Backbone.ajax`,
+and moves the project off npm onto Yarn 4.
+
+### Added
+- **`Backbone.ajax` falls back to native `fetch()`** when `Backbone.$`
+  is absent. Previously the library was unusable without jQuery (or a
+  hand-rolled `Backbone.ajax` override). The fallback maps the subset
+  of jQuery options that `Backbone.sync` emits — `type`, `url`, `data`,
+  `contentType`, `dataType`, `headers`, `beforeSend`, `success`,
+  `error` — onto `fetch()` + `AbortController`, and returns a thenable
+  carrying `.abort()` so the `var xhr = model.fetch(); xhr.abort();`
+  consumer pattern keeps working. The jQuery path is preserved verbatim
+  whenever `Backbone.$` is present.
+
+### Removed (breaking for IE6/IE7)
+- The hidden iframe trick that simulated `hashchange` for IE7, plus
+  the four call sites in `History` that special-cased `this.iframe`.
+- The `setInterval` polling fallback for browsers without
+  `onhashchange`, and the orphan `History#interval` knob that only
+  existed to feed it.
+- The `attachEvent` / `detachEvent` shims around
+  `addEventListener` / `removeEventListener`.
+- The `document.documentMode > 7` gate that guarded against IE7's
+  broken `onhashchange`.
+- Zepto and Ender from the browser-global `$` resolution chain in the
+  UMD factory; only jQuery (or `$`) remains.
+- The IE6 hash/search and Firefox `location.hash`-decoding workaround
+  comments. `History#getHash` also loses its unused `window` argument.
+- The `attachEvent` / `detachEvent` ESLint globals.
+
+### Changed
+- Every prototype method literal on `Model`, `Collection`, `View`,
+  `Router`, and `History` now uses ES6 **method shorthand**:
+  `methodName(args) { ... }` instead of
+  `methodName: function(args) { ... }`. Pure syntactic, no behavior
+  change. The function-style constructor wrappers
+  (`var Model = Backbone.Model = function(...) {...}`) are preserved
+  on purpose: converting them to `class` would break the documented
+  `Backbone.Model.apply(this, arguments)` pattern in user-provided
+  `constructor:` overrides (exercised by test #2612), since `super()`
+  must come first in a derived class constructor.
+- `Backbone.VERSION`, the source header, and `package.json` are all
+  aligned at `1.7.0`.
+
+### Tooling
+- **Package manager: npm → Yarn 4.14**, pinned via Corepack and the
+  `packageManager` field. `node-modules` linker for full compatibility
+  with Karma/Rollup/Docco; no Zero-Install (cache stays out of git).
+  `package-lock.json` is replaced by `yarn.lock`.
+- **CI Node 14 → 20**, required by Yarn 4 (≥ 18.12). `npm ci` becomes
+  `yarn install --immutable`.
+- `dependenciesMeta.puppeteer.built` is set explicitly so Yarn 4's
+  default postinstall block doesn't strand the Chromium download that
+  `karma.conf.js` depends on.
+
 ## [1.6.3] — 2026-05-12
 
 A maintenance pass that closes a backlog of bugs, modernizes the test/build
@@ -151,6 +209,7 @@ Regression coverage was added for every behavioral fix above:
   collections to perform redundant `_byId` reindex work on every model
   attribute change.
 
+[1.7.0]: https://github.com/compuzz-eventus/backbone/compare/1.6.3...1.7.0
 [1.6.3]: https://github.com/compuzz-eventus/backbone/compare/1.6.2...1.6.3
 [1.6.2]: https://github.com/compuzz-eventus/backbone/compare/1.6.1...1.6.2
 [1.6.1]: https://github.com/compuzz-eventus/backbone/compare/1.6.0...1.6.1
