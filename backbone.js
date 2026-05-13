@@ -39,7 +39,7 @@
 
   // Finally, as a browser global.
   } else {
-    root.Backbone = factory(root, {}, root._, root.jQuery || root.Zepto || root.ender || root.$);
+    root.Backbone = factory(root, {}, root._, root.jQuery || root.$);
   }
 
 })(function(root, Backbone, _, $) {
@@ -57,8 +57,7 @@
   // Current version of the library. Keep in sync with `package.json`.
   Backbone.VERSION = '1.6.3';
 
-  // For Backbone's purposes, jQuery, Zepto, Ender, or My Library (kidding) owns
-  // the `$` variable.
+  // For Backbone's purposes, jQuery owns the `$` variable.
   Backbone.$ = $;
 
   // Runs Backbone.js in *noConflict* mode, returning the `Backbone` variable
@@ -1821,11 +1820,11 @@
   // Backbone.History
   // ----------------
 
-  // Handles cross-browser history management, based on either
-  // [pushState](http://diveintohtml5.info/history.html) and real URLs, or
-  // [onhashchange](https://developer.mozilla.org/en-US/docs/DOM/window.onhashchange)
-  // and URL fragments. If the browser supports neither (old IE, natch),
-  // falls back to polling.
+  // Handles history management, based on either
+  // [pushState](https://developer.mozilla.org/en-US/docs/Web/API/History/pushState)
+  // and real URLs, or
+  // [onhashchange](https://developer.mozilla.org/en-US/docs/Web/API/Window/hashchange_event)
+  // and URL fragments.
   var History = Backbone.History = function() {
     this.handlers = [];
     this.checkUrl = this.checkUrl.bind(this);
@@ -1852,10 +1851,6 @@
   // Set up all inheritable **Backbone.History** properties and methods.
   _.extend(History.prototype, Events, {
 
-    // The default interval to poll for hash changes, if necessary, is
-    // twenty times a second.
-    interval: 50,
-
     // Are we at the app root?
     atRoot: function() {
       var path = this.location.pathname.replace(/[^\/]$/, '$&/');
@@ -1876,17 +1871,15 @@
       return decodeURI(fragment.replace(/%25/g, '%2525'));
     },
 
-    // In IE6, the hash fragment and search params are incorrect if the
-    // fragment contains `?`.
+    // Extract the search/query portion of the URL, excluding the hash.
     getSearch: function() {
       var match = this.location.href.replace(/#.*/, '').match(/\?.+/);
       return match ? match[0] : '';
     },
 
-    // Gets the true hash value. Cannot use location.hash directly due to bug
-    // in Firefox where location.hash will always be decoded.
-    getHash: function(window) {
-      var match = (window || this).location.href.match(/#(.*)$/);
+    // Get the hash value from the current URL.
+    getHash: function() {
+      var match = this.location.href.match(/#(.*)$/);
       return match ? match[1] : '';
     },
 
@@ -1919,14 +1912,12 @@
       }
       History.started = true;
 
-      // Figure out the initial configuration. Do we need an iframe?
-      // Is pushState desired ... is it available?
+      // Figure out the initial configuration. Is pushState desired ... is it
+      // available?
       this.options          = _.extend({root: '/'}, this.options, options);
       this.root             = this.options.root;
       this._trailingSlash   = this.options.trailingSlash;
       this._wantsHashChange = this.options.hashChange !== false;
-      this._hasHashChange   = 'onhashchange' in window && (document.documentMode === void 0 || document.documentMode > 7);
-      this._useHashChange   = this._wantsHashChange && this._hasHashChange;
       this._wantsPushState  = !!this.options.pushState;
       this._hasPushState    = !!(this.history && this.history.pushState);
       this._usePushState    = this._wantsPushState && this._hasPushState;
@@ -1955,35 +1946,12 @@
 
       }
 
-      // Proxy an iframe to handle location events if the browser doesn't
-      // support the `hashchange` event, HTML5 history, or the user wants
-      // `hashChange` but not `pushState`.
-      if (!this._hasHashChange && this._wantsHashChange && !this._usePushState) {
-        this.iframe = document.createElement('iframe');
-        this.iframe.src = 'javascript:0';
-        this.iframe.style.display = 'none';
-        this.iframe.tabIndex = -1;
-        var body = document.body;
-        // Using `appendChild` will throw on IE < 9 if the document is not ready.
-        var iWindow = body.insertBefore(this.iframe, body.firstChild).contentWindow;
-        iWindow.document.open();
-        iWindow.document.close();
-        iWindow.location.hash = '#' + this.fragment;
-      }
-
-      // Add a cross-platform `addEventListener` shim for older browsers.
-      var addEventListener = window.addEventListener || function(eventName, listener) {
-        return attachEvent('on' + eventName, listener);
-      };
-
-      // Depending on whether we're using pushState or hashes, and whether
-      // 'onhashchange' is supported, determine how we check the URL state.
+      // Depending on whether we're using pushState or hashes, determine how we
+      // check the URL state.
       if (this._usePushState) {
-        addEventListener('popstate', this.checkUrl, false);
-      } else if (this._useHashChange && !this.iframe) {
-        addEventListener('hashchange', this.checkUrl, false);
+        window.addEventListener('popstate', this.checkUrl, false);
       } else if (this._wantsHashChange) {
-        this._checkUrlInterval = setInterval(this.checkUrl, this.interval);
+        window.addEventListener('hashchange', this.checkUrl, false);
       }
 
       if (!this.options.silent) return this.loadUrl();
@@ -1997,26 +1965,13 @@
       // a no-op rather than a `ReferenceError` on `window`/`document`.
       if (!History.started) return;
 
-      // Add a cross-platform `removeEventListener` shim for older browsers.
-      var removeEventListener = window.removeEventListener || function(eventName, listener) {
-        return detachEvent('on' + eventName, listener);
-      };
-
       // Remove window listeners.
       if (this._usePushState) {
-        removeEventListener('popstate', this.checkUrl, false);
-      } else if (this._useHashChange && !this.iframe) {
-        removeEventListener('hashchange', this.checkUrl, false);
+        window.removeEventListener('popstate', this.checkUrl, false);
+      } else if (this._wantsHashChange) {
+        window.removeEventListener('hashchange', this.checkUrl, false);
       }
 
-      // Clean up the iframe if necessary.
-      if (this.iframe) {
-        document.body.removeChild(this.iframe);
-        this.iframe = null;
-      }
-
-      // Some environments will throw when clearing an undefined interval.
-      if (this._checkUrlInterval) clearInterval(this._checkUrlInterval);
       History.started = false;
     },
 
@@ -2027,21 +1982,13 @@
     },
 
     // Checks the current URL to see if it has changed, and if it has,
-    // calls `loadUrl`, normalizing across the hidden iframe.
+    // calls `loadUrl`.
     checkUrl: function(e) {
       var current = this.getFragment();
-
-      // If the user pressed the back button, the iframe's hash will have
-      // changed and we should use that for comparison.
-      if (current === this.fragment && this.iframe) {
-        current = this.getHash(this.iframe.contentWindow);
-      }
-
       if (current === this.fragment) {
         if (!this.matchRoot()) return this.notfound();
         return false;
       }
-      if (this.iframe) this.navigate(current);
       this.loadUrl();
     },
 
@@ -2106,19 +2053,6 @@
       // fragment to store history.
       } else if (this._wantsHashChange) {
         this._updateHash(this.location, fragment, options.replace);
-        if (this.iframe && fragment !== this.getHash(this.iframe.contentWindow)) {
-          var iWindow = this.iframe.contentWindow;
-
-          // Opening and closing the iframe tricks IE7 and earlier to push a
-          // history entry on hash-tag change.  When replace is true, we don't
-          // want this.
-          if (!options.replace) {
-            iWindow.document.open();
-            iWindow.document.close();
-          }
-
-          this._updateHash(iWindow.location, fragment, options.replace);
-        }
 
       // If you've told us that you explicitly don't want fallback hashchange-
       // based history, then `navigate` becomes a page refresh.

@@ -10,9 +10,7 @@ module.exports = [
       globals: {
         ...globals.browser,
         ...globals.node,
-        ...globals.amd,
-        attachEvent: 'readonly',
-        detachEvent: 'readonly'
+        ...globals.amd
       }
     },
     plugins: {
