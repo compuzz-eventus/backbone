@@ -27,7 +27,7 @@
               <div class="sswrap ">
                 <a class="ss" href="#section-1">&#x00a7;</a>
               </div>
-              <pre><code><span class="hljs-title class_">Backbone</span>.<span class="hljs-property">js</span> <span class="hljs-number">1.6</span><span class="hljs-number">.3</span>
+              <pre><code><span class="hljs-title class_">Backbone</span>.<span class="hljs-property">js</span> <span class="hljs-number">1.7</span><span class="hljs-number">.0</span>
 </code></pre>
 
             </div>
@@ -129,11 +129,20 @@ others that may still expect a global Backbone.</p>
               </div>
               <p>Tolerate jQuery being absent, but surface real load errors (corrupt
 install, ESM/CJS mismatch, etc.) instead of starting up half-broken.</p>
+<ul>
+<li><code>MODULE_NOT_FOUND</code>: jquery isn’t installed (intentional in Node-only
+server-side use of Backbone, when Views/AJAX aren’t needed).</li>
+<li><code>jQuery requires a window</code>: jQuery 4+ refuses to load in a no-DOM
+Node context. Same outcome from Backbone’s perspective — leave <code>$</code>
+undefined so Models/Collections/Events still work.</li>
+</ul>
 
             </div>
             
             <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">try</span> { $ = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;jquery&#x27;</span>); } <span class="hljs-keyword">catch</span> (e) {
-      <span class="hljs-keyword">if</span> (e.<span class="hljs-property">code</span> !== <span class="hljs-string">&#x27;MODULE_NOT_FOUND&#x27;</span>) <span class="hljs-keyword">throw</span> e;
+      <span class="hljs-keyword">if</span> (e.<span class="hljs-property">code</span> !== <span class="hljs-string">&#x27;MODULE_NOT_FOUND&#x27;</span> &amp;&amp; !<span class="hljs-regexp">/jquery requires/i</span>.<span class="hljs-title function_">test</span>(e.<span class="hljs-property">message</span>)) {
+        <span class="hljs-keyword">throw</span> e;
+      }
     }
     <span class="hljs-title function_">factory</span>(root, <span class="hljs-built_in">exports</span>, _, $);</pre></div></div>
             
@@ -151,7 +160,7 @@ install, ESM/CJS mismatch, etc.) instead of starting up half-broken.</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>  } <span class="hljs-keyword">else</span> {
-    root.<span class="hljs-property">Backbone</span> = <span class="hljs-title function_">factory</span>(root, {}, root.<span class="hljs-property">_</span>, root.<span class="hljs-property">jQuery</span> || root.<span class="hljs-property">Zepto</span> || root.<span class="hljs-property">ender</span> || root.<span class="hljs-property">$</span>);
+    root.<span class="hljs-property">Backbone</span> = <span class="hljs-title function_">factory</span>(root, {}, root.<span class="hljs-property">_</span>, root.<span class="hljs-property">jQuery</span> || root.<span class="hljs-property">$</span>);
   }
 
 })(<span class="hljs-keyword">function</span>(<span class="hljs-params">root, Backbone, _, $</span>) {</pre></div></div>
@@ -225,7 +234,7 @@ restored later on, if <code>noConflict</code> is used.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>  <span class="hljs-title class_">Backbone</span>.<span class="hljs-property">VERSION</span> = <span class="hljs-string">&#x27;1.6.3&#x27;</span>;</pre></div></div>
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-title class_">Backbone</span>.<span class="hljs-property">VERSION</span> = <span class="hljs-string">&#x27;1.7.0&#x27;</span>;</pre></div></div>
             
         </li>
         
@@ -236,8 +245,7 @@ restored later on, if <code>noConflict</code> is used.</p>
               <div class="sswrap ">
                 <a class="ss" href="#section-14">&#x00a7;</a>
               </div>
-              <p>For Backbone’s purposes, jQuery, Zepto, Ender, or My Library (kidding) owns
-the <code>$</code> variable.</p>
+              <p>For Backbone’s purposes, jQuery owns the <code>$</code> variable.</p>
 
             </div>
             
@@ -1271,7 +1279,7 @@ or object.  preinitialize will run before any instantiation logic is run in the 
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">preinitialize</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params"></span>){},</pre></div></div>
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">preinitialize</span>(<span class="hljs-params"></span>) {},</pre></div></div>
             
         </li>
         
@@ -1287,7 +1295,7 @@ initialization logic.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">initialize</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params"></span>){},</pre></div></div>
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">initialize</span>(<span class="hljs-params"></span>) {},</pre></div></div>
             
         </li>
         
@@ -1302,7 +1310,7 @@ initialization logic.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">toJSON</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params">options</span>) {
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">toJSON</span>(<span class="hljs-params">options</span>) {
       <span class="hljs-keyword">return</span> _.<span class="hljs-title function_">clone</span>(<span class="hljs-variable language_">this</span>.<span class="hljs-property">attributes</span>);
     },</pre></div></div>
             
@@ -1320,7 +1328,7 @@ custom syncing semantics for <em>this</em> particular model.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">sync</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) {
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">sync</span>(<span class="hljs-params"></span>) {
       <span class="hljs-keyword">return</span> <span class="hljs-title class_">Backbone</span>.<span class="hljs-property">sync</span>.<span class="hljs-title function_">apply</span>(<span class="hljs-variable language_">this</span>, <span class="hljs-variable language_">arguments</span>);
     },</pre></div></div>
             
@@ -1337,7 +1345,7 @@ custom syncing semantics for <em>this</em> particular model.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">get</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params">attr</span>) {
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">get</span>(<span class="hljs-params">attr</span>) {
       <span class="hljs-keyword">return</span> <span class="hljs-variable language_">this</span>.<span class="hljs-property">attributes</span>[attr];
     },</pre></div></div>
             
@@ -1354,7 +1362,7 @@ custom syncing semantics for <em>this</em> particular model.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">escape</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params">attr</span>) {
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">escape</span>(<span class="hljs-params">attr</span>) {
       <span class="hljs-keyword">return</span> _.<span class="hljs-built_in">escape</span>(<span class="hljs-variable language_">this</span>.<span class="hljs-title function_">get</span>(attr));
     },</pre></div></div>
             
@@ -1372,7 +1380,7 @@ or undefined.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">has</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params">attr</span>) {
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">has</span>(<span class="hljs-params">attr</span>) {
       <span class="hljs-keyword">return</span> <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">get</span>(attr) != <span class="hljs-literal">null</span>;
     },</pre></div></div>
             
@@ -1389,7 +1397,7 @@ or undefined.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">matches</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params">attrs</span>) {
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">matches</span>(<span class="hljs-params">attrs</span>) {
       <span class="hljs-keyword">return</span> !!_.<span class="hljs-title function_">iteratee</span>(attrs, <span class="hljs-variable language_">this</span>)(<span class="hljs-variable language_">this</span>.<span class="hljs-property">attributes</span>);
     },</pre></div></div>
             
@@ -1408,7 +1416,7 @@ anyone who needs to know about the change in state. The heart of the beast.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">set</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params">key, val, options</span>) {
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">set</span>(<span class="hljs-params">key, val, options</span>) {
       <span class="hljs-keyword">if</span> (key == <span class="hljs-literal">null</span>) <span class="hljs-keyword">return</span> <span class="hljs-variable language_">this</span>;</pre></div></div>
             
         </li>
@@ -1598,7 +1606,7 @@ if the attribute doesn’t exist.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">unset</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params">attr, options</span>) {
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">unset</span>(<span class="hljs-params">attr, options</span>) {
       <span class="hljs-keyword">return</span> <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">set</span>(attr, <span class="hljs-keyword">void</span> <span class="hljs-number">0</span>, _.<span class="hljs-title function_">extend</span>({}, options, {<span class="hljs-attr">unset</span>: <span class="hljs-literal">true</span>}));
     },</pre></div></div>
             
@@ -1615,7 +1623,7 @@ if the attribute doesn’t exist.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">clear</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params">options</span>) {
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">clear</span>(<span class="hljs-params">options</span>) {
       <span class="hljs-keyword">var</span> attrs = {};
       <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> key <span class="hljs-keyword">in</span> <span class="hljs-variable language_">this</span>.<span class="hljs-property">attributes</span>) attrs[key] = <span class="hljs-keyword">void</span> <span class="hljs-number">0</span>;
       <span class="hljs-keyword">return</span> <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">set</span>(attrs, _.<span class="hljs-title function_">extend</span>({}, options, {<span class="hljs-attr">unset</span>: <span class="hljs-literal">true</span>}));
@@ -1635,7 +1643,7 @@ If you specify an attribute name, determine if that attribute has changed.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">hasChanged</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params">attr</span>) {
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">hasChanged</span>(<span class="hljs-params">attr</span>) {
       <span class="hljs-keyword">if</span> (attr == <span class="hljs-literal">null</span>) <span class="hljs-keyword">return</span> !_.<span class="hljs-title function_">isEmpty</span>(<span class="hljs-variable language_">this</span>.<span class="hljs-property">changed</span>);
       <span class="hljs-keyword">return</span> _.<span class="hljs-title function_">has</span>(<span class="hljs-variable language_">this</span>.<span class="hljs-property">changed</span>, attr);
     },</pre></div></div>
@@ -1658,7 +1666,7 @@ determining if there <em>would be</em> a change.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">changedAttributes</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params">diff</span>) {
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">changedAttributes</span>(<span class="hljs-params">diff</span>) {
       <span class="hljs-keyword">if</span> (!diff) <span class="hljs-keyword">return</span> <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">hasChanged</span>() ? _.<span class="hljs-title function_">clone</span>(<span class="hljs-variable language_">this</span>.<span class="hljs-property">changed</span>) : <span class="hljs-literal">false</span>;
       <span class="hljs-keyword">var</span> old = <span class="hljs-variable language_">this</span>.<span class="hljs-property">_changing</span> ? <span class="hljs-variable language_">this</span>.<span class="hljs-property">_previousAttributes</span> : <span class="hljs-variable language_">this</span>.<span class="hljs-property">attributes</span>;
       <span class="hljs-keyword">var</span> changed = {};
@@ -1686,7 +1694,7 @@ determining if there <em>would be</em> a change.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">previous</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params">attr</span>) {
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">previous</span>(<span class="hljs-params">attr</span>) {
       <span class="hljs-keyword">if</span> (attr == <span class="hljs-literal">null</span> || !<span class="hljs-variable language_">this</span>.<span class="hljs-property">_previousAttributes</span>) <span class="hljs-keyword">return</span> <span class="hljs-literal">null</span>;
       <span class="hljs-keyword">return</span> <span class="hljs-variable language_">this</span>.<span class="hljs-property">_previousAttributes</span>[attr];
     },</pre></div></div>
@@ -1705,7 +1713,7 @@ determining if there <em>would be</em> a change.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">previousAttributes</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) {
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">previousAttributes</span>(<span class="hljs-params"></span>) {
       <span class="hljs-keyword">return</span> _.<span class="hljs-title function_">clone</span>(<span class="hljs-variable language_">this</span>.<span class="hljs-property">_previousAttributes</span>);
     },</pre></div></div>
             
@@ -1723,7 +1731,7 @@ local attributes. Any changed attributes will trigger a “change” event.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">fetch</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params">options</span>) {
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">fetch</span>(<span class="hljs-params">options</span>) {
       options = _.<span class="hljs-title function_">extend</span>({<span class="hljs-attr">parse</span>: <span class="hljs-literal">true</span>}, options);
       <span class="hljs-keyword">var</span> model = <span class="hljs-variable language_">this</span>;
       <span class="hljs-keyword">var</span> success = options.<span class="hljs-property">success</span>;
@@ -1752,7 +1760,7 @@ state will be <code>set</code> again.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">save</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params">key, val, options</span>) {</pre></div></div>
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">save</span>(<span class="hljs-params">key, val, options</span>) {</pre></div></div>
             
         </li>
         
@@ -1892,7 +1900,7 @@ If <code>wait: true</code> is passed, waits for the server to respond before rem
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">destroy</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params">options</span>) {
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">destroy</span>(<span class="hljs-params">options</span>) {
       options = options ? _.<span class="hljs-title function_">clone</span>(options) : {};
       <span class="hljs-keyword">var</span> model = <span class="hljs-variable language_">this</span>;
       <span class="hljs-keyword">var</span> success = options.<span class="hljs-property">success</span>;
@@ -1935,7 +1943,7 @@ that will be called.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">url</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) {
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">url</span>(<span class="hljs-params"></span>) {
       <span class="hljs-keyword">var</span> base =
         _.<span class="hljs-title function_">result</span>(<span class="hljs-variable language_">this</span>, <span class="hljs-string">&#x27;urlRoot&#x27;</span>) ||
         _.<span class="hljs-title function_">result</span>(<span class="hljs-variable language_">this</span>.<span class="hljs-property">collection</span>, <span class="hljs-string">&#x27;url&#x27;</span>) ||
@@ -1959,7 +1967,7 @@ the model. The default implementation is just to pass the response along.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">parse</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params">resp, options</span>) {
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">parse</span>(<span class="hljs-params">resp, options</span>) {
       <span class="hljs-keyword">return</span> resp;
     },</pre></div></div>
             
@@ -1976,7 +1984,7 @@ the model. The default implementation is just to pass the response along.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">clone</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) {
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">clone</span>(<span class="hljs-params"></span>) {
       <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">constructor</span>(<span class="hljs-params"><span class="hljs-variable language_">this</span>.attributes</span>);
     },</pre></div></div>
             
@@ -1993,7 +2001,7 @@ the model. The default implementation is just to pass the response along.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">isNew</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) {
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">isNew</span>(<span class="hljs-params"></span>) {
       <span class="hljs-keyword">return</span> !<span class="hljs-variable language_">this</span>.<span class="hljs-title function_">has</span>(<span class="hljs-variable language_">this</span>.<span class="hljs-property">idAttribute</span>);
     },</pre></div></div>
             
@@ -2010,7 +2018,7 @@ the model. The default implementation is just to pass the response along.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">isValid</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params">options</span>) {
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">isValid</span>(<span class="hljs-params">options</span>) {
       <span class="hljs-keyword">return</span> <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">_validate</span>({}, _.<span class="hljs-title function_">extend</span>({}, options, {<span class="hljs-attr">validate</span>: <span class="hljs-literal">true</span>}));
     },</pre></div></div>
             
@@ -2028,7 +2036,7 @@ returning <code>true</code> if all is well. Otherwise, fire an <code>&quot;inval
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">_validate</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params">attrs, options</span>) {
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">_validate</span>(<span class="hljs-params">attrs, options</span>) {
       <span class="hljs-keyword">if</span> (!options.<span class="hljs-property">validate</span> || !<span class="hljs-variable language_">this</span>.<span class="hljs-property">validate</span>) <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
       attrs = _.<span class="hljs-title function_">extend</span>({}, <span class="hljs-variable language_">this</span>.<span class="hljs-property">attributes</span>, attrs);
       <span class="hljs-keyword">var</span> error = <span class="hljs-variable language_">this</span>.<span class="hljs-property">validationError</span> = <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">validate</span>(attrs, options) || <span class="hljs-literal">null</span>;
@@ -2191,7 +2199,7 @@ or object.  preinitialize will run before any instantiation logic is run in the 
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">preinitialize</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params"></span>){},</pre></div></div>
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">preinitialize</span>(<span class="hljs-params"></span>) {},</pre></div></div>
             
         </li>
         
@@ -2207,7 +2215,7 @@ initialization logic.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">initialize</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params"></span>){},</pre></div></div>
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">initialize</span>(<span class="hljs-params"></span>) {},</pre></div></div>
             
         </li>
         
@@ -2223,7 +2231,7 @@ models’ attributes.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">toJSON</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params">options</span>) {
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">toJSON</span>(<span class="hljs-params">options</span>) {
       <span class="hljs-keyword">return</span> <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">map</span>(<span class="hljs-keyword">function</span>(<span class="hljs-params">model</span>) { <span class="hljs-keyword">return</span> model.<span class="hljs-title function_">toJSON</span>(options); });
     },</pre></div></div>
             
@@ -2240,7 +2248,7 @@ models’ attributes.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">sync</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) {
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">sync</span>(<span class="hljs-params"></span>) {
       <span class="hljs-keyword">return</span> <span class="hljs-title class_">Backbone</span>.<span class="hljs-property">sync</span>.<span class="hljs-title function_">apply</span>(<span class="hljs-variable language_">this</span>, <span class="hljs-variable language_">arguments</span>);
     },</pre></div></div>
             
@@ -2259,7 +2267,7 @@ combination of the two.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">add</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params">models, options</span>) {
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">add</span>(<span class="hljs-params">models, options</span>) {
       <span class="hljs-keyword">return</span> <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">set</span>(models, _.<span class="hljs-title function_">extend</span>({<span class="hljs-attr">merge</span>: <span class="hljs-literal">false</span>}, options, addOptions));
     },</pre></div></div>
             
@@ -2276,7 +2284,7 @@ combination of the two.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">remove</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params">models, options</span>) {
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">remove</span>(<span class="hljs-params">models, options</span>) {
       options = _.<span class="hljs-title function_">extend</span>({}, options);
       <span class="hljs-keyword">var</span> singular = !_.<span class="hljs-title function_">isArray</span>(models);
       models = singular ? [models] : models.<span class="hljs-title function_">slice</span>();
@@ -2304,7 +2312,7 @@ the core operation for updating the data contained by the collection.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">set</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params">models, options</span>) {
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">set</span>(<span class="hljs-params">models, options</span>) {
       <span class="hljs-keyword">if</span> (models == <span class="hljs-literal">null</span>) <span class="hljs-keyword">return</span> <span class="hljs-variable language_">this</span>;
 
       options = _.<span class="hljs-title function_">extend</span>({}, setOptions, options);
@@ -2549,7 +2557,7 @@ Useful for bulk operations and optimizations.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">reset</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params">models, options</span>) {
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">reset</span>(<span class="hljs-params">models, options</span>) {
       options = options ? _.<span class="hljs-title function_">clone</span>(options) : {};
       <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-variable language_">this</span>.<span class="hljs-property">models</span>.<span class="hljs-property">length</span>; i++) {
         <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">_removeReference</span>(<span class="hljs-variable language_">this</span>.<span class="hljs-property">models</span>[i], options);
@@ -2574,7 +2582,7 @@ Useful for bulk operations and optimizations.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">push</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params">model, options</span>) {
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">push</span>(<span class="hljs-params">model, options</span>) {
       <span class="hljs-keyword">return</span> <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">add</span>(model, _.<span class="hljs-title function_">extend</span>({<span class="hljs-attr">at</span>: <span class="hljs-variable language_">this</span>.<span class="hljs-property">length</span>}, options));
     },</pre></div></div>
             
@@ -2591,7 +2599,7 @@ Useful for bulk operations and optimizations.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">pop</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params">options</span>) {
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">pop</span>(<span class="hljs-params">options</span>) {
       <span class="hljs-keyword">var</span> model = <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">at</span>(<span class="hljs-variable language_">this</span>.<span class="hljs-property">length</span> - <span class="hljs-number">1</span>);
       <span class="hljs-keyword">return</span> <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">remove</span>(model, options);
     },</pre></div></div>
@@ -2609,7 +2617,7 @@ Useful for bulk operations and optimizations.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">unshift</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params">model, options</span>) {
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">unshift</span>(<span class="hljs-params">model, options</span>) {
       <span class="hljs-keyword">return</span> <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">add</span>(model, _.<span class="hljs-title function_">extend</span>({<span class="hljs-attr">at</span>: <span class="hljs-number">0</span>}, options));
     },</pre></div></div>
             
@@ -2626,7 +2634,7 @@ Useful for bulk operations and optimizations.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">shift</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params">options</span>) {
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">shift</span>(<span class="hljs-params">options</span>) {
       <span class="hljs-keyword">var</span> model = <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">at</span>(<span class="hljs-number">0</span>);
       <span class="hljs-keyword">return</span> <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">remove</span>(model, options);
     },</pre></div></div>
@@ -2644,7 +2652,7 @@ Useful for bulk operations and optimizations.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">slice</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) {
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">slice</span>(<span class="hljs-params"></span>) {
       <span class="hljs-keyword">return</span> slice.<span class="hljs-title function_">apply</span>(<span class="hljs-variable language_">this</span>.<span class="hljs-property">models</span>, <span class="hljs-variable language_">arguments</span>);
     },</pre></div></div>
             
@@ -2662,7 +2670,7 @@ properties, or an attributes object that is transformed through modelId.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">get</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params">obj</span>) {
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">get</span>(<span class="hljs-params">obj</span>) {
       <span class="hljs-keyword">if</span> (obj == <span class="hljs-literal">null</span>) <span class="hljs-keyword">return</span> <span class="hljs-keyword">void</span> <span class="hljs-number">0</span>;
       <span class="hljs-keyword">return</span> <span class="hljs-variable language_">this</span>.<span class="hljs-property">_byId</span>[obj] ||
         <span class="hljs-variable language_">this</span>.<span class="hljs-property">_byId</span>[<span class="hljs-variable language_">this</span>.<span class="hljs-title function_">modelId</span>(<span class="hljs-variable language_">this</span>.<span class="hljs-title function_">_isModel</span>(obj) ? obj.<span class="hljs-property">attributes</span> : obj, obj.<span class="hljs-property">idAttribute</span>)] ||
@@ -2682,7 +2690,7 @@ properties, or an attributes object that is transformed through modelId.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">has</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params">obj</span>) {
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">has</span>(<span class="hljs-params">obj</span>) {
       <span class="hljs-keyword">return</span> <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">get</span>(obj) != <span class="hljs-literal">null</span>;
     },</pre></div></div>
             
@@ -2699,7 +2707,7 @@ properties, or an attributes object that is transformed through modelId.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">at</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params">index</span>) {
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">at</span>(<span class="hljs-params">index</span>) {
       <span class="hljs-keyword">if</span> (index &lt; <span class="hljs-number">0</span>) index += <span class="hljs-variable language_">this</span>.<span class="hljs-property">length</span>;
       <span class="hljs-keyword">return</span> <span class="hljs-variable language_">this</span>.<span class="hljs-property">models</span>[index];
     },</pre></div></div>
@@ -2718,7 +2726,7 @@ properties, or an attributes object that is transformed through modelId.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">where</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params">attrs, first</span>) {
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">where</span>(<span class="hljs-params">attrs, first</span>) {
       <span class="hljs-keyword">return</span> <span class="hljs-variable language_">this</span>[first ? <span class="hljs-string">&#x27;find&#x27;</span> : <span class="hljs-string">&#x27;filter&#x27;</span>](attrs);
     },</pre></div></div>
             
@@ -2736,7 +2744,7 @@ of <code>find</code>.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">findWhere</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params">attrs</span>) {
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">findWhere</span>(<span class="hljs-params">attrs</span>) {
       <span class="hljs-keyword">return</span> <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">where</span>(attrs, <span class="hljs-literal">true</span>);
     },</pre></div></div>
             
@@ -2755,7 +2763,7 @@ is added.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">sort</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params">options</span>) {
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">sort</span>(<span class="hljs-params">options</span>) {
       <span class="hljs-keyword">var</span> comparator = <span class="hljs-variable language_">this</span>.<span class="hljs-property">comparator</span>;
       <span class="hljs-keyword">if</span> (!comparator) <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Error</span>(<span class="hljs-string">&#x27;Cannot sort a set without a comparator&#x27;</span>);
       options || (options = {});
@@ -2798,7 +2806,7 @@ is added.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">pluck</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params">attr</span>) {
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">pluck</span>(<span class="hljs-params">attr</span>) {
       <span class="hljs-keyword">return</span> <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">map</span>(attr + <span class="hljs-string">&#x27;&#x27;</span>);
     },</pre></div></div>
             
@@ -2817,7 +2825,7 @@ data will be passed through the <code>reset</code> method instead of <code>set</
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">fetch</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params">options</span>) {
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">fetch</span>(<span class="hljs-params">options</span>) {
       options = _.<span class="hljs-title function_">extend</span>({<span class="hljs-attr">parse</span>: <span class="hljs-literal">true</span>}, options);
       <span class="hljs-keyword">var</span> success = options.<span class="hljs-property">success</span>;
       <span class="hljs-keyword">var</span> collection = <span class="hljs-variable language_">this</span>;
@@ -2846,7 +2854,7 @@ wait for the server to agree.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">create</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params">model, options</span>) {
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">create</span>(<span class="hljs-params">model, options</span>) {
       options = options ? _.<span class="hljs-title function_">clone</span>(options) : {};
       <span class="hljs-keyword">var</span> wait = options.<span class="hljs-property">wait</span>;
       model = <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">_prepareModel</span>(model, options);
@@ -2903,7 +2911,7 @@ collection. The default implementation is just to pass it through.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">parse</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params">resp, options</span>) {
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">parse</span>(<span class="hljs-params">resp, options</span>) {
       <span class="hljs-keyword">return</span> resp;
     },</pre></div></div>
             
@@ -2920,7 +2928,7 @@ collection. The default implementation is just to pass it through.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">clone</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) {
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">clone</span>(<span class="hljs-params"></span>) {
       <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">constructor</span>(<span class="hljs-params"><span class="hljs-variable language_">this</span>.models, {
         model: <span class="hljs-variable language_">this</span>.model,
         comparator: <span class="hljs-variable language_">this</span>.comparator
@@ -2940,7 +2948,7 @@ collection. The default implementation is just to pass it through.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">modelId</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params">attrs, idAttribute</span>) {
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">modelId</span>(<span class="hljs-params">attrs, idAttribute</span>) {
       <span class="hljs-keyword">return</span> attrs[idAttribute || <span class="hljs-variable language_">this</span>.<span class="hljs-property">model</span>.<span class="hljs-property"><span class="hljs-keyword">prototype</span></span>.<span class="hljs-property">idAttribute</span> || <span class="hljs-string">&#x27;id&#x27;</span>];
     },</pre></div></div>
             
@@ -2957,7 +2965,7 @@ collection. The default implementation is just to pass it through.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">values</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) {
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">values</span>(<span class="hljs-params"></span>) {
       <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">CollectionIterator</span>(<span class="hljs-variable language_">this</span>, <span class="hljs-variable constant_">ITERATOR_VALUES</span>);
     },</pre></div></div>
             
@@ -2974,7 +2982,7 @@ collection. The default implementation is just to pass it through.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">keys</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) {
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">keys</span>(<span class="hljs-params"></span>) {
       <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">CollectionIterator</span>(<span class="hljs-variable language_">this</span>, <span class="hljs-variable constant_">ITERATOR_KEYS</span>);
     },</pre></div></div>
             
@@ -2991,7 +2999,7 @@ collection. The default implementation is just to pass it through.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">entries</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) {
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">entries</span>(<span class="hljs-params"></span>) {
       <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">CollectionIterator</span>(<span class="hljs-variable language_">this</span>, <span class="hljs-variable constant_">ITERATOR_KEYSVALUES</span>);
     },</pre></div></div>
             
@@ -3009,7 +3017,7 @@ is first initialized or reset.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">_reset</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) {
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">_reset</span>(<span class="hljs-params"></span>) {
       <span class="hljs-variable language_">this</span>.<span class="hljs-property">length</span> = <span class="hljs-number">0</span>;
       <span class="hljs-variable language_">this</span>.<span class="hljs-property">models</span> = [];
       <span class="hljs-variable language_">this</span>.<span class="hljs-property">_byId</span>  = {};
@@ -3029,7 +3037,7 @@ collection.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">_prepareModel</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params">attrs, options</span>) {
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">_prepareModel</span>(<span class="hljs-params">attrs, options</span>) {
       <span class="hljs-keyword">if</span> (<span class="hljs-variable language_">this</span>.<span class="hljs-title function_">_isModel</span>(attrs)) {
         <span class="hljs-keyword">if</span> (!attrs.<span class="hljs-property">collection</span>) attrs.<span class="hljs-property">collection</span> = <span class="hljs-variable language_">this</span>;
         <span class="hljs-keyword">return</span> attrs;
@@ -3076,7 +3084,7 @@ collection.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">_removeModels</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params">models, options</span>) {
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">_removeModels</span>(<span class="hljs-params">models, options</span>) {
       <span class="hljs-keyword">var</span> removed = [];
       <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> i = <span class="hljs-number">0</span>; i &lt; models.<span class="hljs-property">length</span>; i++) {
         <span class="hljs-keyword">var</span> model = <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">get</span>(models[i]);
@@ -3130,7 +3138,7 @@ the purposes of adding to the collection.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">_isModel</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params">model</span>) {
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">_isModel</span>(<span class="hljs-params">model</span>) {
       <span class="hljs-keyword">return</span> model <span class="hljs-keyword">instanceof</span> <span class="hljs-title class_">Model</span>;
     },</pre></div></div>
             
@@ -3147,7 +3155,7 @@ the purposes of adding to the collection.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">_addReference</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params">model, options</span>) {
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">_addReference</span>(<span class="hljs-params">model, options</span>) {
       <span class="hljs-variable language_">this</span>.<span class="hljs-property">_byId</span>[model.<span class="hljs-property">cid</span>] = model;
       <span class="hljs-keyword">var</span> id = <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">modelId</span>(model.<span class="hljs-property">attributes</span>, model.<span class="hljs-property">idAttribute</span>);
       <span class="hljs-keyword">if</span> (id != <span class="hljs-literal">null</span>) <span class="hljs-variable language_">this</span>.<span class="hljs-property">_byId</span>[id] = model;
@@ -3167,7 +3175,7 @@ the purposes of adding to the collection.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">_removeReference</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params">model, options</span>) {
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">_removeReference</span>(<span class="hljs-params">model, options</span>) {
       <span class="hljs-keyword">delete</span> <span class="hljs-variable language_">this</span>.<span class="hljs-property">_byId</span>[model.<span class="hljs-property">cid</span>];
       <span class="hljs-keyword">var</span> id = <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">modelId</span>(model.<span class="hljs-property">attributes</span>, model.<span class="hljs-property">idAttribute</span>);
       <span class="hljs-keyword">if</span> (id != <span class="hljs-literal">null</span>) <span class="hljs-keyword">delete</span> <span class="hljs-variable language_">this</span>.<span class="hljs-property">_byId</span>[id];
@@ -3191,7 +3199,7 @@ in other collections are ignored.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">_onModelEvent</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params">event, model, collection, options</span>) {
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">_onModelEvent</span>(<span class="hljs-params">event, model, collection, options</span>) {
       <span class="hljs-keyword">if</span> (model) {
         <span class="hljs-keyword">if</span> ((event === <span class="hljs-string">&#x27;add&#x27;</span> || event === <span class="hljs-string">&#x27;remove&#x27;</span>) &amp;&amp; collection !== <span class="hljs-variable language_">this</span>) <span class="hljs-keyword">return</span>;
         <span class="hljs-keyword">if</span> (event === <span class="hljs-string">&#x27;destroy&#x27;</span>) <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">remove</span>(model, options);
@@ -3222,7 +3230,7 @@ hence a customized callback.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">_forwardPristineError</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params">model, collection, options</span>) {</pre></div></div>
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">_forwardPristineError</span>(<span class="hljs-params">model, collection, options</span>) {</pre></div></div>
             
         </li>
         
@@ -3554,7 +3562,7 @@ current view. This should be preferred to global lookups where possible.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">$</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params">selector</span>) {
+            <div class="content"><div class='highlight'><pre>    $(selector) {
       <span class="hljs-keyword">return</span> <span class="hljs-variable language_">this</span>.<span class="hljs-property">$el</span>.<span class="hljs-title function_">find</span>(selector);
     },</pre></div></div>
             
@@ -3572,7 +3580,7 @@ or object.  preinitialize will run before any instantiation logic is run in the 
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">preinitialize</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params"></span>){},</pre></div></div>
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">preinitialize</span>(<span class="hljs-params"></span>) {},</pre></div></div>
             
         </li>
         
@@ -3588,7 +3596,7 @@ initialization logic.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">initialize</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params"></span>){},</pre></div></div>
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">initialize</span>(<span class="hljs-params"></span>) {},</pre></div></div>
             
         </li>
         
@@ -3605,7 +3613,7 @@ convention is for <strong>render</strong> to always return <code>this</code>.</p
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">render</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) {
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">render</span>(<span class="hljs-params"></span>) {
       <span class="hljs-keyword">return</span> <span class="hljs-variable language_">this</span>;
     },</pre></div></div>
             
@@ -3623,7 +3631,7 @@ applicable Backbone.Events listeners.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">remove</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) {
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">remove</span>(<span class="hljs-params"></span>) {
       <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">_removeElement</span>();
       <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">stopListening</span>();
       <span class="hljs-keyword">return</span> <span class="hljs-variable language_">this</span>;
@@ -3644,7 +3652,7 @@ manipulation API.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">_removeElement</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) {
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">_removeElement</span>(<span class="hljs-params"></span>) {
       <span class="hljs-variable language_">this</span>.<span class="hljs-property">$el</span>.<span class="hljs-title function_">remove</span>();
     },</pre></div></div>
             
@@ -3662,7 +3670,7 @@ view’s events on the new element.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">setElement</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params">element</span>) {
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">setElement</span>(<span class="hljs-params">element</span>) {
       <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">undelegateEvents</span>();
       <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">_setElement</span>(element);
       <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">delegateEvents</span>();
@@ -3686,7 +3694,7 @@ alternative DOM manipulation API and are only required to set the
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">_setElement</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params">el</span>) {
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">_setElement</span>(<span class="hljs-params">el</span>) {
       <span class="hljs-variable language_">this</span>.<span class="hljs-property">$el</span> = el <span class="hljs-keyword">instanceof</span> <span class="hljs-title class_">Backbone</span>.<span class="hljs-property">$</span> ? el : <span class="hljs-title class_">Backbone</span>.$(el);
       <span class="hljs-variable language_">this</span>.<span class="hljs-property">el</span> = <span class="hljs-variable language_">this</span>.<span class="hljs-property">$el</span>[<span class="hljs-number">0</span>];
     },</pre></div></div>
@@ -3714,7 +3722,7 @@ Omitting the selector binds the event to <code>this.el</code>.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">delegateEvents</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params">events</span>) {
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">delegateEvents</span>(<span class="hljs-params">events</span>) {
       events || (events = _.<span class="hljs-title function_">result</span>(<span class="hljs-variable language_">this</span>, <span class="hljs-string">&#x27;events&#x27;</span>));
       <span class="hljs-keyword">if</span> (!events) <span class="hljs-keyword">return</span> <span class="hljs-variable language_">this</span>;
       <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">undelegateEvents</span>();
@@ -3743,7 +3751,7 @@ using <code>selector</code>). This only works for delegate-able events: not <cod
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">delegate</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params">eventName, selector, listener</span>) {
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">delegate</span>(<span class="hljs-params">eventName, selector, listener</span>) {
       <span class="hljs-variable language_">this</span>.<span class="hljs-property">$el</span>.<span class="hljs-title function_">on</span>(eventName + <span class="hljs-string">&#x27;.delegateEvents&#x27;</span> + <span class="hljs-variable language_">this</span>.<span class="hljs-property">cid</span>, selector, listener);
       <span class="hljs-keyword">return</span> <span class="hljs-variable language_">this</span>;
     },</pre></div></div>
@@ -3763,7 +3771,7 @@ Backbone views attached to the same DOM element.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">undelegateEvents</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) {
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">undelegateEvents</span>(<span class="hljs-params"></span>) {
       <span class="hljs-keyword">if</span> (<span class="hljs-variable language_">this</span>.<span class="hljs-property">$el</span>) <span class="hljs-variable language_">this</span>.<span class="hljs-property">$el</span>.<span class="hljs-title function_">off</span>(<span class="hljs-string">&#x27;.delegateEvents&#x27;</span> + <span class="hljs-variable language_">this</span>.<span class="hljs-property">cid</span>);
       <span class="hljs-keyword">return</span> <span class="hljs-variable language_">this</span>;
     },</pre></div></div>
@@ -3782,7 +3790,7 @@ Backbone views attached to the same DOM element.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">undelegate</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params">eventName, selector, listener</span>) {
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">undelegate</span>(<span class="hljs-params">eventName, selector, listener</span>) {
       <span class="hljs-keyword">if</span> (<span class="hljs-variable language_">this</span>.<span class="hljs-property">$el</span>) <span class="hljs-variable language_">this</span>.<span class="hljs-property">$el</span>.<span class="hljs-title function_">off</span>(eventName + <span class="hljs-string">&#x27;.delegateEvents&#x27;</span> + <span class="hljs-variable language_">this</span>.<span class="hljs-property">cid</span>, selector, listener);
       <span class="hljs-keyword">return</span> <span class="hljs-variable language_">this</span>;
     },</pre></div></div>
@@ -3801,7 +3809,7 @@ subclasses using an alternative DOM manipulation API.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">_createElement</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params">tagName</span>) {
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">_createElement</span>(<span class="hljs-params">tagName</span>) {
       <span class="hljs-keyword">return</span> <span class="hljs-variable language_">document</span>.<span class="hljs-title function_">createElement</span>(tagName);
     },</pre></div></div>
             
@@ -3821,7 +3829,7 @@ an element from the <code>id</code>, <code>className</code> and <code>tagName</c
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">_ensureElement</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) {
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">_ensureElement</span>(<span class="hljs-params"></span>) {
       <span class="hljs-keyword">if</span> (!<span class="hljs-variable language_">this</span>.<span class="hljs-property">el</span>) {
         <span class="hljs-keyword">var</span> attrs = _.<span class="hljs-title function_">extend</span>({}, _.<span class="hljs-title function_">result</span>(<span class="hljs-variable language_">this</span>, <span class="hljs-string">&#x27;attributes&#x27;</span>));
         <span class="hljs-keyword">if</span> (<span class="hljs-variable language_">this</span>.<span class="hljs-property">id</span>) attrs.<span class="hljs-property">id</span> = _.<span class="hljs-title function_">result</span>(<span class="hljs-variable language_">this</span>, <span class="hljs-string">&#x27;id&#x27;</span>);
@@ -3847,7 +3855,7 @@ subclasses using an alternative DOM manipulation API.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">_setAttributes</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params">attributes</span>) {
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">_setAttributes</span>(<span class="hljs-params">attributes</span>) {
       <span class="hljs-variable language_">this</span>.<span class="hljs-property">$el</span>.<span class="hljs-title function_">attr</span>(attributes);
     }
 
@@ -4251,10 +4259,7 @@ request on the caller’s options object.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">if</span> (callerOptions) callerOptions.<span class="hljs-property">xhr</span> = xhr;
-    model.<span class="hljs-title function_">trigger</span>(<span class="hljs-string">&#x27;request&#x27;</span>, model, xhr, options);
-    <span class="hljs-keyword">return</span> xhr;
-  };</pre></div></div>
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">if</span> (callerOptions) callerOptions.<span class="hljs-property">xhr</span> = xhr;</pre></div></div>
             
         </li>
         
@@ -4264,6 +4269,25 @@ request on the caller’s options object.</p>
               
               <div class="sswrap ">
                 <a class="ss" href="#section-214">&#x00a7;</a>
+              </div>
+              <p>Emit <code>request</code> against the caller’s options so listeners that mutate
+<code>opts</code> (e.g. instrumentation) see those mutations on the same object
+that later <code>sync</code>/<code>error</code> listeners receive.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    model.<span class="hljs-title function_">trigger</span>(<span class="hljs-string">&#x27;request&#x27;</span>, model, xhr, callerOptions || options);
+    <span class="hljs-keyword">return</span> xhr;
+  };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-215">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-215">&#x00a7;</a>
               </div>
               <p>Map from CRUD to HTTP for our default <code>Backbone.sync</code> implementation.</p>
 
@@ -4280,33 +4304,28 @@ request on the caller’s options object.</p>
         </li>
         
         
-        <li id="section-215">
-            <div class="annotation">
-              
-              <div class="sswrap ">
-                <a class="ss" href="#section-215">&#x00a7;</a>
-              </div>
-              <p>Set the default implementation of <code>Backbone.ajax</code> to proxy through to <code>$</code>.
-Override this if you’d like to use a different library.</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>  <span class="hljs-title class_">Backbone</span>.<span class="hljs-property">ajax</span> = <span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) {
-    <span class="hljs-keyword">return</span> <span class="hljs-title class_">Backbone</span>.<span class="hljs-property">$</span>.<span class="hljs-property">ajax</span>.<span class="hljs-title function_">apply</span>(<span class="hljs-title class_">Backbone</span>.<span class="hljs-property">$</span>, <span class="hljs-variable language_">arguments</span>);
-  };</pre></div></div>
-            
-        </li>
-        
-        
         <li id="section-216">
             <div class="annotation">
               
               <div class="sswrap ">
                 <a class="ss" href="#section-216">&#x00a7;</a>
               </div>
-              <h2 id="backbonerouter">Backbone.Router</h2>
+              <p>Set the default implementation of <code>Backbone.ajax</code>. Prefers jQuery’s
+<code>$.ajax</code> when <code>Backbone.$</code> is present (full jqXHR contract preserved),
+otherwise falls back to a native <code>fetch()</code>-based adapter that supports
+the subset of jQuery options Backbone itself consumes: <code>type</code>, <code>url</code>,
+<code>data</code>, <code>contentType</code>, <code>dataType</code>, <code>headers</code>, <code>beforeSend</code>, <code>success</code>,
+and <code>error</code>. The return value is a thenable with <code>.abort()</code>.
+Override this if you’d like to use a different library.</p>
 
             </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-title class_">Backbone</span>.<span class="hljs-property">ajax</span> = <span class="hljs-keyword">function</span>(<span class="hljs-params">options</span>) {
+    <span class="hljs-keyword">if</span> (<span class="hljs-title class_">Backbone</span>.<span class="hljs-property">$</span> &amp;&amp; <span class="hljs-title class_">Backbone</span>.<span class="hljs-property">$</span>.<span class="hljs-property">ajax</span>) {
+      <span class="hljs-keyword">return</span> <span class="hljs-title class_">Backbone</span>.<span class="hljs-property">$</span>.<span class="hljs-property">ajax</span>.<span class="hljs-title function_">apply</span>(<span class="hljs-title class_">Backbone</span>.<span class="hljs-property">$</span>, <span class="hljs-variable language_">arguments</span>);
+    }
+    <span class="hljs-keyword">return</span> <span class="hljs-title function_">fetchAjax</span>(options);
+  };</pre></div></div>
             
         </li>
         
@@ -4317,8 +4336,78 @@ Override this if you’d like to use a different library.</p>
               <div class="sswrap ">
                 <a class="ss" href="#section-217">&#x00a7;</a>
               </div>
-              
+              <p>Adapter from the jQuery $.ajax option contract that <code>Backbone.sync</code>
+produces, to native <code>fetch</code>. Used only when Backbone.$ is absent.</p>
+
             </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-keyword">var</span> fetchAjax = <span class="hljs-keyword">function</span>(<span class="hljs-params">options</span>) {
+    <span class="hljs-keyword">var</span> url = options.<span class="hljs-property">url</span>;
+    <span class="hljs-keyword">var</span> method = (options.<span class="hljs-property">type</span> || <span class="hljs-string">&#x27;GET&#x27;</span>).<span class="hljs-title function_">toUpperCase</span>();
+    <span class="hljs-keyword">var</span> headers = _.<span class="hljs-title function_">extend</span>({}, options.<span class="hljs-property">headers</span>);
+    <span class="hljs-keyword">if</span> (options.<span class="hljs-property">contentType</span>) headers[<span class="hljs-string">&#x27;Content-Type&#x27;</span>] = options.<span class="hljs-property">contentType</span>;
+    <span class="hljs-keyword">var</span> body;
+
+    <span class="hljs-keyword">if</span> (options.<span class="hljs-property">data</span> != <span class="hljs-literal">null</span>) {
+      <span class="hljs-keyword">if</span> (method === <span class="hljs-string">&#x27;GET&#x27;</span> || method === <span class="hljs-string">&#x27;HEAD&#x27;</span>) {
+        <span class="hljs-keyword">var</span> qs = <span class="hljs-keyword">typeof</span> options.<span class="hljs-property">data</span> === <span class="hljs-string">&#x27;string&#x27;</span>
+          ? options.<span class="hljs-property">data</span>
+          : <span class="hljs-keyword">new</span> <span class="hljs-title class_">URLSearchParams</span>(options.<span class="hljs-property">data</span>).<span class="hljs-title function_">toString</span>();
+        <span class="hljs-keyword">if</span> (qs) url += (url.<span class="hljs-title function_">indexOf</span>(<span class="hljs-string">&#x27;?&#x27;</span>) === -<span class="hljs-number">1</span> ? <span class="hljs-string">&#x27;?&#x27;</span> : <span class="hljs-string">&#x27;&amp;&#x27;</span>) + qs;
+      } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> options.<span class="hljs-property">data</span> === <span class="hljs-string">&#x27;string&#x27;</span>) {
+        body = options.<span class="hljs-property">data</span>;
+      } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (options.<span class="hljs-property">contentType</span> === <span class="hljs-string">&#x27;application/x-www-form-urlencoded&#x27;</span>) {
+        body = <span class="hljs-keyword">new</span> <span class="hljs-title class_">URLSearchParams</span>(options.<span class="hljs-property">data</span>).<span class="hljs-title function_">toString</span>();
+      } <span class="hljs-keyword">else</span> {
+        body = <span class="hljs-title class_">JSON</span>.<span class="hljs-title function_">stringify</span>(options.<span class="hljs-property">data</span>);
+      }
+    }
+
+    <span class="hljs-keyword">var</span> controller = <span class="hljs-keyword">new</span> <span class="hljs-title class_">AbortController</span>();
+    <span class="hljs-keyword">var</span> xhr = {
+      <span class="hljs-attr">abort</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) { controller.<span class="hljs-title function_">abort</span>(); },
+      <span class="hljs-attr">setRequestHeader</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params">k, v</span>) { headers[k] = v; }
+    };
+
+    <span class="hljs-keyword">if</span> (options.<span class="hljs-property">beforeSend</span>) options.<span class="hljs-title function_">beforeSend</span>(xhr);
+
+    <span class="hljs-keyword">var</span> promise = <span class="hljs-title function_">fetch</span>(url, {
+      <span class="hljs-attr">method</span>: method,
+      <span class="hljs-attr">headers</span>: headers,
+      <span class="hljs-attr">body</span>: body,
+      <span class="hljs-attr">credentials</span>: options.<span class="hljs-property">credentials</span>,
+      <span class="hljs-attr">signal</span>: controller.<span class="hljs-property">signal</span>
+    }).<span class="hljs-title function_">then</span>(<span class="hljs-keyword">function</span>(<span class="hljs-params">response</span>) {
+      xhr.<span class="hljs-property">status</span> = response.<span class="hljs-property">status</span>;
+      xhr.<span class="hljs-property">statusText</span> = response.<span class="hljs-property">statusText</span>;
+      <span class="hljs-keyword">return</span> response.<span class="hljs-title function_">text</span>().<span class="hljs-title function_">then</span>(<span class="hljs-keyword">function</span>(<span class="hljs-params">text</span>) {
+        xhr.<span class="hljs-property">responseText</span> = text;
+        <span class="hljs-keyword">var</span> parseJson = options.<span class="hljs-property">dataType</span> == <span class="hljs-literal">null</span> || options.<span class="hljs-property">dataType</span> === <span class="hljs-string">&#x27;json&#x27;</span>;
+        <span class="hljs-keyword">var</span> data = text;
+        <span class="hljs-keyword">if</span> (parseJson &amp;&amp; text) {
+          <span class="hljs-keyword">try</span> { data = <span class="hljs-title class_">JSON</span>.<span class="hljs-title function_">parse</span>(text); } <span class="hljs-keyword">catch</span> (e) {
+            <span class="hljs-keyword">if</span> (options.<span class="hljs-property">error</span>) options.<span class="hljs-title function_">error</span>(xhr, <span class="hljs-string">&#x27;parsererror&#x27;</span>, e.<span class="hljs-property">message</span>);
+            <span class="hljs-keyword">throw</span> e;
+          }
+        }
+        <span class="hljs-keyword">if</span> (!response.<span class="hljs-property">ok</span>) {
+          <span class="hljs-keyword">if</span> (options.<span class="hljs-property">error</span>) options.<span class="hljs-title function_">error</span>(xhr, <span class="hljs-string">&#x27;error&#x27;</span>, response.<span class="hljs-property">statusText</span>);
+          <span class="hljs-keyword">var</span> httpError = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Error</span>(response.<span class="hljs-property">statusText</span>);
+          httpError.<span class="hljs-property">xhr</span> = xhr;
+          <span class="hljs-keyword">throw</span> httpError;
+        }
+        <span class="hljs-keyword">if</span> (options.<span class="hljs-property">success</span>) options.<span class="hljs-title function_">success</span>(data, <span class="hljs-string">&#x27;success&#x27;</span>, xhr);
+        <span class="hljs-keyword">return</span> data;
+      });
+    }, <span class="hljs-keyword">function</span>(<span class="hljs-params">err</span>) {
+      <span class="hljs-keyword">if</span> (err.<span class="hljs-property">name</span> === <span class="hljs-string">&#x27;AbortError&#x27;</span>) <span class="hljs-keyword">throw</span> err;
+      <span class="hljs-keyword">if</span> (options.<span class="hljs-property">error</span>) options.<span class="hljs-title function_">error</span>(xhr, <span class="hljs-string">&#x27;error&#x27;</span>, err.<span class="hljs-property">message</span> || <span class="hljs-title class_">String</span>(err));
+      <span class="hljs-keyword">throw</span> err;
+    });
+
+    promise.<span class="hljs-property">abort</span> = <span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) { controller.<span class="hljs-title function_">abort</span>(); };
+    <span class="hljs-keyword">return</span> promise;
+  };</pre></div></div>
             
         </li>
         
@@ -4328,6 +4417,31 @@ Override this if you’d like to use a different library.</p>
               
               <div class="sswrap ">
                 <a class="ss" href="#section-218">&#x00a7;</a>
+              </div>
+              <h2 id="backbonerouter">Backbone.Router</h2>
+
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-219">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-219">&#x00a7;</a>
+              </div>
+              
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-220">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-220">&#x00a7;</a>
               </div>
               <p>Routers map faux-URLs to actions, and fire events when routes are
 matched. Creating a new one sets its <code>routes</code> hash, if not set statically.</p>
@@ -4345,11 +4459,11 @@ matched. Creating a new one sets its <code>routes</code> hash, if not set static
         </li>
         
         
-        <li id="section-219">
+        <li id="section-221">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-219">&#x00a7;</a>
+                <a class="ss" href="#section-221">&#x00a7;</a>
               </div>
               <p>Cached regular expressions for matching named param parts and splatted
 parts of route strings.</p>
@@ -4364,11 +4478,11 @@ parts of route strings.</p>
         </li>
         
         
-        <li id="section-220">
+        <li id="section-222">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-220">&#x00a7;</a>
+                <a class="ss" href="#section-222">&#x00a7;</a>
               </div>
               <p>Set up all inheritable <strong>Backbone.Router</strong> properties and methods.</p>
 
@@ -4379,43 +4493,43 @@ parts of route strings.</p>
         </li>
         
         
-        <li id="section-221">
+        <li id="section-223">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-221">&#x00a7;</a>
+                <a class="ss" href="#section-223">&#x00a7;</a>
               </div>
               <p>preinitialize is an empty function by default. You can override it with a function
 or object.  preinitialize will run before any instantiation logic is run in the Router.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">preinitialize</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params"></span>){},</pre></div></div>
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">preinitialize</span>(<span class="hljs-params"></span>) {},</pre></div></div>
             
         </li>
         
         
-        <li id="section-222">
+        <li id="section-224">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-222">&#x00a7;</a>
+                <a class="ss" href="#section-224">&#x00a7;</a>
               </div>
               <p>Initialize is an empty function by default. Override it with your own
 initialization logic.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">initialize</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params"></span>){},</pre></div></div>
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">initialize</span>(<span class="hljs-params"></span>) {},</pre></div></div>
             
         </li>
         
         
-        <li id="section-223">
+        <li id="section-225">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-223">&#x00a7;</a>
+                <a class="ss" href="#section-225">&#x00a7;</a>
               </div>
               <p>Manually bind a single named route to a callback. For example:</p>
 <pre><code><span class="hljs-variable language_">this</span>.<span class="hljs-title function_">route</span>(<span class="hljs-string">&#x27;search/:query/p:num&#x27;</span>, <span class="hljs-string">&#x27;search&#x27;</span>, <span class="hljs-keyword">function</span>(<span class="hljs-params">query, num</span>) {
@@ -4425,7 +4539,7 @@ initialization logic.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">route</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params">route, name, callback</span>) {
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">route</span>(<span class="hljs-params">route, name, callback</span>) {
       <span class="hljs-keyword">if</span> (!_.<span class="hljs-title function_">isRegExp</span>(route)) route = <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">_routeToRegExp</span>(route);
       <span class="hljs-keyword">if</span> (_.<span class="hljs-title function_">isFunction</span>(name)) {
         callback = name;
@@ -4440,11 +4554,11 @@ initialization logic.</p>
         </li>
         
         
-        <li id="section-224">
+        <li id="section-226">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-224">&#x00a7;</a>
+                <a class="ss" href="#section-226">&#x00a7;</a>
               </div>
               <p>Skip the named-route trigger when <code>name</code> is empty — otherwise
 listeners see a spurious <code>route:</code> event.</p>
@@ -4462,61 +4576,19 @@ listeners see a spurious <code>route:</code> event.</p>
         </li>
         
         
-        <li id="section-225">
-            <div class="annotation">
-              
-              <div class="sswrap ">
-                <a class="ss" href="#section-225">&#x00a7;</a>
-              </div>
-              <p>Execute a route handler with the provided parameters.  This is an
-excellent place to do pre-route setup or post-route cleanup.</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">execute</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params">callback, args, name</span>) {
-      <span class="hljs-keyword">if</span> (_.<span class="hljs-title function_">isFunction</span>(callback)) callback.<span class="hljs-title function_">apply</span>(<span class="hljs-variable language_">this</span>, args);
-    },</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-226">
-            <div class="annotation">
-              
-              <div class="sswrap ">
-                <a class="ss" href="#section-226">&#x00a7;</a>
-              </div>
-              <p>Simple proxy to <code>Backbone.history</code> to save a fragment into the history.</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">navigate</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params">fragment, options</span>) {
-      <span class="hljs-title class_">Backbone</span>.<span class="hljs-property">history</span>.<span class="hljs-title function_">navigate</span>(fragment, options);
-      <span class="hljs-keyword">return</span> <span class="hljs-variable language_">this</span>;
-    },</pre></div></div>
-            
-        </li>
-        
-        
         <li id="section-227">
             <div class="annotation">
               
               <div class="sswrap ">
                 <a class="ss" href="#section-227">&#x00a7;</a>
               </div>
-              <p>Bind all defined routes to <code>Backbone.history</code>. We have to reverse the
-order of the routes here to support behavior where the most general
-routes can be defined at the bottom of the route map.</p>
+              <p>Execute a route handler with the provided parameters.  This is an
+excellent place to do pre-route setup or post-route cleanup.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">_bindRoutes</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) {
-      <span class="hljs-keyword">if</span> (!<span class="hljs-variable language_">this</span>.<span class="hljs-property">routes</span>) <span class="hljs-keyword">return</span>;
-      <span class="hljs-variable language_">this</span>.<span class="hljs-property">routes</span> = _.<span class="hljs-title function_">result</span>(<span class="hljs-variable language_">this</span>, <span class="hljs-string">&#x27;routes&#x27;</span>);
-      <span class="hljs-keyword">var</span> route, routes = _.<span class="hljs-title function_">keys</span>(<span class="hljs-variable language_">this</span>.<span class="hljs-property">routes</span>);
-      <span class="hljs-keyword">while</span> ((route = routes.<span class="hljs-title function_">pop</span>()) != <span class="hljs-literal">null</span>) {
-        <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">route</span>(route, <span class="hljs-variable language_">this</span>.<span class="hljs-property">routes</span>[route]);
-      }
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">execute</span>(<span class="hljs-params">callback, args, name</span>) {
+      <span class="hljs-keyword">if</span> (_.<span class="hljs-title function_">isFunction</span>(callback)) callback.<span class="hljs-title function_">apply</span>(<span class="hljs-variable language_">this</span>, args);
     },</pre></div></div>
             
         </li>
@@ -4528,12 +4600,54 @@ routes can be defined at the bottom of the route map.</p>
               <div class="sswrap ">
                 <a class="ss" href="#section-228">&#x00a7;</a>
               </div>
+              <p>Simple proxy to <code>Backbone.history</code> to save a fragment into the history.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">navigate</span>(<span class="hljs-params">fragment, options</span>) {
+      <span class="hljs-title class_">Backbone</span>.<span class="hljs-property">history</span>.<span class="hljs-title function_">navigate</span>(fragment, options);
+      <span class="hljs-keyword">return</span> <span class="hljs-variable language_">this</span>;
+    },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-229">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-229">&#x00a7;</a>
+              </div>
+              <p>Bind all defined routes to <code>Backbone.history</code>. We have to reverse the
+order of the routes here to support behavior where the most general
+routes can be defined at the bottom of the route map.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">_bindRoutes</span>(<span class="hljs-params"></span>) {
+      <span class="hljs-keyword">if</span> (!<span class="hljs-variable language_">this</span>.<span class="hljs-property">routes</span>) <span class="hljs-keyword">return</span>;
+      <span class="hljs-variable language_">this</span>.<span class="hljs-property">routes</span> = _.<span class="hljs-title function_">result</span>(<span class="hljs-variable language_">this</span>, <span class="hljs-string">&#x27;routes&#x27;</span>);
+      <span class="hljs-keyword">var</span> route, routes = _.<span class="hljs-title function_">keys</span>(<span class="hljs-variable language_">this</span>.<span class="hljs-property">routes</span>);
+      <span class="hljs-keyword">while</span> ((route = routes.<span class="hljs-title function_">pop</span>()) != <span class="hljs-literal">null</span>) {
+        <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">route</span>(route, <span class="hljs-variable language_">this</span>.<span class="hljs-property">routes</span>[route]);
+      }
+    },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-230">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-230">&#x00a7;</a>
+              </div>
               <p>Convert a route string into a regular expression, suitable for matching
 against the current location hash.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">_routeToRegExp</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params">route</span>) {
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">_routeToRegExp</span>(<span class="hljs-params">route</span>) {
       route = route.<span class="hljs-title function_">replace</span>(escapeRegExp, <span class="hljs-string">&#x27;\\$&amp;&#x27;</span>)
       .<span class="hljs-title function_">replace</span>(optionalParam, <span class="hljs-string">&#x27;(?:$1)?&#x27;</span>)
       .<span class="hljs-title function_">replace</span>(namedParam, <span class="hljs-keyword">function</span>(<span class="hljs-params">match, optional</span>) {
@@ -4546,11 +4660,11 @@ against the current location hash.</p>
         </li>
         
         
-        <li id="section-229">
+        <li id="section-231">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-229">&#x00a7;</a>
+                <a class="ss" href="#section-231">&#x00a7;</a>
               </div>
               <p>Given a route, and a URL fragment that it matches, return the array of
 extracted decoded parameters. Empty or unmatched parameters will be
@@ -4558,18 +4672,18 @@ treated as <code>null</code> to normalize cross-browser behavior.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">_extractParameters</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params">route, fragment</span>) {
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">_extractParameters</span>(<span class="hljs-params">route, fragment</span>) {
       <span class="hljs-keyword">var</span> params = route.<span class="hljs-title function_">exec</span>(fragment).<span class="hljs-title function_">slice</span>(<span class="hljs-number">1</span>);
       <span class="hljs-keyword">return</span> _.<span class="hljs-title function_">map</span>(params, <span class="hljs-keyword">function</span>(<span class="hljs-params">param, i</span>) {</pre></div></div>
             
         </li>
         
         
-        <li id="section-230">
+        <li id="section-232">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-230">&#x00a7;</a>
+                <a class="ss" href="#section-232">&#x00a7;</a>
               </div>
               <p>Don’t decode the search params.</p>
 
@@ -4585,11 +4699,11 @@ treated as <code>null</code> to normalize cross-browser behavior.</p>
         </li>
         
         
-        <li id="section-231">
+        <li id="section-233">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-231">&#x00a7;</a>
+                <a class="ss" href="#section-233">&#x00a7;</a>
               </div>
               <h2 id="backbonehistory">Backbone.History</h2>
 
@@ -4598,11 +4712,11 @@ treated as <code>null</code> to normalize cross-browser behavior.</p>
         </li>
         
         
-        <li id="section-232">
+        <li id="section-234">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-232">&#x00a7;</a>
+                <a class="ss" href="#section-234">&#x00a7;</a>
               </div>
               
             </div>
@@ -4610,17 +4724,17 @@ treated as <code>null</code> to normalize cross-browser behavior.</p>
         </li>
         
         
-        <li id="section-233">
+        <li id="section-235">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-233">&#x00a7;</a>
+                <a class="ss" href="#section-235">&#x00a7;</a>
               </div>
-              <p>Handles cross-browser history management, based on either
-<a href="http://diveintohtml5.info/history.html">pushState</a> and real URLs, or
-<a href="https://developer.mozilla.org/en-US/docs/DOM/window.onhashchange">onhashchange</a>
-and URL fragments. If the browser supports neither (old IE, natch),
-falls back to polling.</p>
+              <p>Handles history management, based on either
+<a href="https://developer.mozilla.org/en-US/docs/Web/API/History/pushState">pushState</a>
+and real URLs, or
+<a href="https://developer.mozilla.org/en-US/docs/Web/API/Window/hashchange_event">onhashchange</a>
+and URL fragments.</p>
 
             </div>
             
@@ -4631,11 +4745,11 @@ falls back to polling.</p>
         </li>
         
         
-        <li id="section-234">
+        <li id="section-236">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-234">&#x00a7;</a>
+                <a class="ss" href="#section-236">&#x00a7;</a>
               </div>
               <p>Ensure that <code>History</code> can be used outside of the browser.</p>
 
@@ -4650,11 +4764,11 @@ falls back to polling.</p>
         </li>
         
         
-        <li id="section-235">
+        <li id="section-237">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-235">&#x00a7;</a>
+                <a class="ss" href="#section-237">&#x00a7;</a>
               </div>
               <p>Cached regex for stripping a leading hash/slash and trailing space.</p>
 
@@ -4665,11 +4779,11 @@ falls back to polling.</p>
         </li>
         
         
-        <li id="section-236">
+        <li id="section-238">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-236">&#x00a7;</a>
+                <a class="ss" href="#section-238">&#x00a7;</a>
               </div>
               <p>Cached regex for stripping leading and trailing slashes.</p>
 
@@ -4680,11 +4794,11 @@ falls back to polling.</p>
         </li>
         
         
-        <li id="section-237">
+        <li id="section-239">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-237">&#x00a7;</a>
+                <a class="ss" href="#section-239">&#x00a7;</a>
               </div>
               <p>Cached regex for stripping urls of hash.</p>
 
@@ -4695,11 +4809,11 @@ falls back to polling.</p>
         </li>
         
         
-        <li id="section-238">
+        <li id="section-240">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-238">&#x00a7;</a>
+                <a class="ss" href="#section-240">&#x00a7;</a>
               </div>
               <p>Has the history handling already been started?</p>
 
@@ -4710,11 +4824,11 @@ falls back to polling.</p>
         </li>
         
         
-        <li id="section-239">
+        <li id="section-241">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-239">&#x00a7;</a>
+                <a class="ss" href="#section-241">&#x00a7;</a>
               </div>
               <p>Set up all inheritable <strong>Backbone.History</strong> properties and methods.</p>
 
@@ -4725,54 +4839,19 @@ falls back to polling.</p>
         </li>
         
         
-        <li id="section-240">
-            <div class="annotation">
-              
-              <div class="sswrap ">
-                <a class="ss" href="#section-240">&#x00a7;</a>
-              </div>
-              <p>The default interval to poll for hash changes, if necessary, is
-twenty times a second.</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">interval</span>: <span class="hljs-number">50</span>,</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-241">
-            <div class="annotation">
-              
-              <div class="sswrap ">
-                <a class="ss" href="#section-241">&#x00a7;</a>
-              </div>
-              <p>Are we at the app root?</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">atRoot</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) {
-      <span class="hljs-keyword">var</span> path = <span class="hljs-variable language_">this</span>.<span class="hljs-property">location</span>.<span class="hljs-property">pathname</span>.<span class="hljs-title function_">replace</span>(<span class="hljs-regexp">/[^\/]$/</span>, <span class="hljs-string">&#x27;$&amp;/&#x27;</span>);
-      <span class="hljs-keyword">return</span> path === <span class="hljs-variable language_">this</span>.<span class="hljs-property">root</span> &amp;&amp; !<span class="hljs-variable language_">this</span>.<span class="hljs-title function_">getSearch</span>();
-    },</pre></div></div>
-            
-        </li>
-        
-        
         <li id="section-242">
             <div class="annotation">
               
               <div class="sswrap ">
                 <a class="ss" href="#section-242">&#x00a7;</a>
               </div>
-              <p>Does the pathname match the root?</p>
+              <p>Are we at the app root?</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">matchRoot</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) {
-      <span class="hljs-keyword">var</span> path = <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">decodeFragment</span>(<span class="hljs-variable language_">this</span>.<span class="hljs-property">location</span>.<span class="hljs-property">pathname</span>);
-      <span class="hljs-keyword">var</span> rootPath = path.<span class="hljs-title function_">slice</span>(<span class="hljs-number">0</span>, <span class="hljs-variable language_">this</span>.<span class="hljs-property">root</span>.<span class="hljs-property">length</span> - <span class="hljs-number">1</span>) + <span class="hljs-string">&#x27;/&#x27;</span>;
-      <span class="hljs-keyword">return</span> rootPath === <span class="hljs-variable language_">this</span>.<span class="hljs-property">root</span>;
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">atRoot</span>(<span class="hljs-params"></span>) {
+      <span class="hljs-keyword">var</span> path = <span class="hljs-variable language_">this</span>.<span class="hljs-property">location</span>.<span class="hljs-property">pathname</span>.<span class="hljs-title function_">replace</span>(<span class="hljs-regexp">/[^\/]$/</span>, <span class="hljs-string">&#x27;$&amp;/&#x27;</span>);
+      <span class="hljs-keyword">return</span> path === <span class="hljs-variable language_">this</span>.<span class="hljs-property">root</span> &amp;&amp; !<span class="hljs-variable language_">this</span>.<span class="hljs-title function_">getSearch</span>();
     },</pre></div></div>
             
         </li>
@@ -4784,14 +4863,14 @@ twenty times a second.</p>
               <div class="sswrap ">
                 <a class="ss" href="#section-243">&#x00a7;</a>
               </div>
-              <p>Unicode characters in <code>location.pathname</code> are percent encoded so they’re
-decoded for comparison. <code>%25</code> should not be decoded since it may be part
-of an encoded parameter.</p>
+              <p>Does the pathname match the root?</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">decodeFragment</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params">fragment</span>) {
-      <span class="hljs-keyword">return</span> <span class="hljs-built_in">decodeURI</span>(fragment.<span class="hljs-title function_">replace</span>(<span class="hljs-regexp">/%25/g</span>, <span class="hljs-string">&#x27;%2525&#x27;</span>));
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">matchRoot</span>(<span class="hljs-params"></span>) {
+      <span class="hljs-keyword">var</span> path = <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">decodeFragment</span>(<span class="hljs-variable language_">this</span>.<span class="hljs-property">location</span>.<span class="hljs-property">pathname</span>);
+      <span class="hljs-keyword">var</span> rootPath = path.<span class="hljs-title function_">slice</span>(<span class="hljs-number">0</span>, <span class="hljs-variable language_">this</span>.<span class="hljs-property">root</span>.<span class="hljs-property">length</span> - <span class="hljs-number">1</span>) + <span class="hljs-string">&#x27;/&#x27;</span>;
+      <span class="hljs-keyword">return</span> rootPath === <span class="hljs-variable language_">this</span>.<span class="hljs-property">root</span>;
     },</pre></div></div>
             
         </li>
@@ -4803,14 +4882,14 @@ of an encoded parameter.</p>
               <div class="sswrap ">
                 <a class="ss" href="#section-244">&#x00a7;</a>
               </div>
-              <p>In IE6, the hash fragment and search params are incorrect if the
-fragment contains <code>?</code>.</p>
+              <p>Unicode characters in <code>location.pathname</code> are percent encoded so they’re
+decoded for comparison. <code>%25</code> should not be decoded since it may be part
+of an encoded parameter.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">getSearch</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) {
-      <span class="hljs-keyword">var</span> match = <span class="hljs-variable language_">this</span>.<span class="hljs-property">location</span>.<span class="hljs-property">href</span>.<span class="hljs-title function_">replace</span>(<span class="hljs-regexp">/#.*/</span>, <span class="hljs-string">&#x27;&#x27;</span>).<span class="hljs-title function_">match</span>(<span class="hljs-regexp">/\?.+/</span>);
-      <span class="hljs-keyword">return</span> match ? match[<span class="hljs-number">0</span>] : <span class="hljs-string">&#x27;&#x27;</span>;
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">decodeFragment</span>(<span class="hljs-params">fragment</span>) {
+      <span class="hljs-keyword">return</span> <span class="hljs-built_in">decodeURI</span>(fragment.<span class="hljs-title function_">replace</span>(<span class="hljs-regexp">/%25/g</span>, <span class="hljs-string">&#x27;%2525&#x27;</span>));
     },</pre></div></div>
             
         </li>
@@ -4822,14 +4901,13 @@ fragment contains <code>?</code>.</p>
               <div class="sswrap ">
                 <a class="ss" href="#section-245">&#x00a7;</a>
               </div>
-              <p>Gets the true hash value. Cannot use location.hash directly due to bug
-in Firefox where location.hash will always be decoded.</p>
+              <p>Extract the search/query portion of the URL, excluding the hash.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">getHash</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params"><span class="hljs-variable language_">window</span></span>) {
-      <span class="hljs-keyword">var</span> match = (<span class="hljs-variable language_">window</span> || <span class="hljs-variable language_">this</span>).<span class="hljs-property">location</span>.<span class="hljs-property">href</span>.<span class="hljs-title function_">match</span>(<span class="hljs-regexp">/#(.*)$/</span>);
-      <span class="hljs-keyword">return</span> match ? match[<span class="hljs-number">1</span>] : <span class="hljs-string">&#x27;&#x27;</span>;
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">getSearch</span>(<span class="hljs-params"></span>) {
+      <span class="hljs-keyword">var</span> match = <span class="hljs-variable language_">this</span>.<span class="hljs-property">location</span>.<span class="hljs-property">href</span>.<span class="hljs-title function_">replace</span>(<span class="hljs-regexp">/#.*/</span>, <span class="hljs-string">&#x27;&#x27;</span>).<span class="hljs-title function_">match</span>(<span class="hljs-regexp">/\?.+/</span>);
+      <span class="hljs-keyword">return</span> match ? match[<span class="hljs-number">0</span>] : <span class="hljs-string">&#x27;&#x27;</span>;
     },</pre></div></div>
             
         </li>
@@ -4841,15 +4919,13 @@ in Firefox where location.hash will always be decoded.</p>
               <div class="sswrap ">
                 <a class="ss" href="#section-246">&#x00a7;</a>
               </div>
-              <p>Get the pathname and search params, without the root.</p>
+              <p>Get the hash value from the current URL.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">getPath</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) {
-      <span class="hljs-keyword">var</span> path = <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">decodeFragment</span>(
-        <span class="hljs-variable language_">this</span>.<span class="hljs-property">location</span>.<span class="hljs-property">pathname</span> + <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">getSearch</span>()
-      ).<span class="hljs-title function_">slice</span>(<span class="hljs-variable language_">this</span>.<span class="hljs-property">root</span>.<span class="hljs-property">length</span> - <span class="hljs-number">1</span>);
-      <span class="hljs-keyword">return</span> path.<span class="hljs-title function_">charAt</span>(<span class="hljs-number">0</span>) === <span class="hljs-string">&#x27;/&#x27;</span> ? path.<span class="hljs-title function_">slice</span>(<span class="hljs-number">1</span>) : path;
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">getHash</span>(<span class="hljs-params"></span>) {
+      <span class="hljs-keyword">var</span> match = <span class="hljs-variable language_">this</span>.<span class="hljs-property">location</span>.<span class="hljs-property">href</span>.<span class="hljs-title function_">match</span>(<span class="hljs-regexp">/#(.*)$/</span>);
+      <span class="hljs-keyword">return</span> match ? match[<span class="hljs-number">1</span>] : <span class="hljs-string">&#x27;&#x27;</span>;
     },</pre></div></div>
             
         </li>
@@ -4861,11 +4937,31 @@ in Firefox where location.hash will always be decoded.</p>
               <div class="sswrap ">
                 <a class="ss" href="#section-247">&#x00a7;</a>
               </div>
+              <p>Get the pathname and search params, without the root.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">getPath</span>(<span class="hljs-params"></span>) {
+      <span class="hljs-keyword">var</span> path = <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">decodeFragment</span>(
+        <span class="hljs-variable language_">this</span>.<span class="hljs-property">location</span>.<span class="hljs-property">pathname</span> + <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">getSearch</span>()
+      ).<span class="hljs-title function_">slice</span>(<span class="hljs-variable language_">this</span>.<span class="hljs-property">root</span>.<span class="hljs-property">length</span> - <span class="hljs-number">1</span>);
+      <span class="hljs-keyword">return</span> path.<span class="hljs-title function_">charAt</span>(<span class="hljs-number">0</span>) === <span class="hljs-string">&#x27;/&#x27;</span> ? path.<span class="hljs-title function_">slice</span>(<span class="hljs-number">1</span>) : path;
+    },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-248">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-248">&#x00a7;</a>
+              </div>
               <p>Get the cross-browser normalized URL fragment from the path or hash.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">getFragment</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params">fragment</span>) {
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">getFragment</span>(<span class="hljs-params">fragment</span>) {
       <span class="hljs-keyword">if</span> (fragment == <span class="hljs-literal">null</span>) {
         <span class="hljs-keyword">if</span> (<span class="hljs-variable language_">this</span>.<span class="hljs-property">_usePushState</span> || !<span class="hljs-variable language_">this</span>.<span class="hljs-property">_wantsHashChange</span>) {
           fragment = <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">getPath</span>();
@@ -4879,48 +4975,23 @@ in Firefox where location.hash will always be decoded.</p>
         </li>
         
         
-        <li id="section-248">
-            <div class="annotation">
-              
-              <div class="sswrap ">
-                <a class="ss" href="#section-248">&#x00a7;</a>
-              </div>
-              <p>Start the hash change handling, returning <code>true</code> if the current URL matches
-an existing route, and <code>false</code> otherwise.</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">start</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params">options</span>) {
-      <span class="hljs-keyword">if</span> (<span class="hljs-title class_">History</span>.<span class="hljs-property">started</span>) <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Error</span>(<span class="hljs-string">&#x27;Backbone.history has already been started&#x27;</span>);
-      <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> <span class="hljs-variable language_">window</span> === <span class="hljs-string">&#x27;undefined&#x27;</span>) {
-        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Error</span>(<span class="hljs-string">&#x27;Backbone.history.start() requires a browser window&#x27;</span>);
-      }
-      <span class="hljs-title class_">History</span>.<span class="hljs-property">started</span> = <span class="hljs-literal">true</span>;</pre></div></div>
-            
-        </li>
-        
-        
         <li id="section-249">
             <div class="annotation">
               
               <div class="sswrap ">
                 <a class="ss" href="#section-249">&#x00a7;</a>
               </div>
-              <p>Figure out the initial configuration. Do we need an iframe?
-Is pushState desired … is it available?</p>
+              <p>Start the hash change handling, returning <code>true</code> if the current URL matches
+an existing route, and <code>false</code> otherwise.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>      <span class="hljs-variable language_">this</span>.<span class="hljs-property">options</span>          = _.<span class="hljs-title function_">extend</span>({<span class="hljs-attr">root</span>: <span class="hljs-string">&#x27;/&#x27;</span>}, <span class="hljs-variable language_">this</span>.<span class="hljs-property">options</span>, options);
-      <span class="hljs-variable language_">this</span>.<span class="hljs-property">root</span>             = <span class="hljs-variable language_">this</span>.<span class="hljs-property">options</span>.<span class="hljs-property">root</span>;
-      <span class="hljs-variable language_">this</span>.<span class="hljs-property">_trailingSlash</span>   = <span class="hljs-variable language_">this</span>.<span class="hljs-property">options</span>.<span class="hljs-property">trailingSlash</span>;
-      <span class="hljs-variable language_">this</span>.<span class="hljs-property">_wantsHashChange</span> = <span class="hljs-variable language_">this</span>.<span class="hljs-property">options</span>.<span class="hljs-property">hashChange</span> !== <span class="hljs-literal">false</span>;
-      <span class="hljs-variable language_">this</span>.<span class="hljs-property">_hasHashChange</span>   = <span class="hljs-string">&#x27;onhashchange&#x27;</span> <span class="hljs-keyword">in</span> <span class="hljs-variable language_">window</span> &amp;&amp; (<span class="hljs-variable language_">document</span>.<span class="hljs-property">documentMode</span> === <span class="hljs-keyword">void</span> <span class="hljs-number">0</span> || <span class="hljs-variable language_">document</span>.<span class="hljs-property">documentMode</span> &gt; <span class="hljs-number">7</span>);
-      <span class="hljs-variable language_">this</span>.<span class="hljs-property">_useHashChange</span>   = <span class="hljs-variable language_">this</span>.<span class="hljs-property">_wantsHashChange</span> &amp;&amp; <span class="hljs-variable language_">this</span>.<span class="hljs-property">_hasHashChange</span>;
-      <span class="hljs-variable language_">this</span>.<span class="hljs-property">_wantsPushState</span>  = !!<span class="hljs-variable language_">this</span>.<span class="hljs-property">options</span>.<span class="hljs-property">pushState</span>;
-      <span class="hljs-variable language_">this</span>.<span class="hljs-property">_hasPushState</span>    = !!(<span class="hljs-variable language_">this</span>.<span class="hljs-property">history</span> &amp;&amp; <span class="hljs-variable language_">this</span>.<span class="hljs-property">history</span>.<span class="hljs-property">pushState</span>);
-      <span class="hljs-variable language_">this</span>.<span class="hljs-property">_usePushState</span>    = <span class="hljs-variable language_">this</span>.<span class="hljs-property">_wantsPushState</span> &amp;&amp; <span class="hljs-variable language_">this</span>.<span class="hljs-property">_hasPushState</span>;
-      <span class="hljs-variable language_">this</span>.<span class="hljs-property">fragment</span>         = <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">getFragment</span>();</pre></div></div>
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">start</span>(<span class="hljs-params">options</span>) {
+      <span class="hljs-keyword">if</span> (<span class="hljs-title class_">History</span>.<span class="hljs-property">started</span>) <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Error</span>(<span class="hljs-string">&#x27;Backbone.history has already been started&#x27;</span>);
+      <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> <span class="hljs-variable language_">window</span> === <span class="hljs-string">&#x27;undefined&#x27;</span>) {
+        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Error</span>(<span class="hljs-string">&#x27;Backbone.history.start() requires a browser window&#x27;</span>);
+      }
+      <span class="hljs-title class_">History</span>.<span class="hljs-property">started</span> = <span class="hljs-literal">true</span>;</pre></div></div>
             
         </li>
         
@@ -4931,11 +5002,19 @@ Is pushState desired … is it available?</p>
               <div class="sswrap ">
                 <a class="ss" href="#section-250">&#x00a7;</a>
               </div>
-              <p>Normalize root to always include a leading and trailing slash.</p>
+              <p>Figure out the initial configuration. Is pushState desired … is it
+available?</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>      <span class="hljs-variable language_">this</span>.<span class="hljs-property">root</span> = (<span class="hljs-string">&#x27;/&#x27;</span> + <span class="hljs-variable language_">this</span>.<span class="hljs-property">root</span> + <span class="hljs-string">&#x27;/&#x27;</span>).<span class="hljs-title function_">replace</span>(rootStripper, <span class="hljs-string">&#x27;/&#x27;</span>);</pre></div></div>
+            <div class="content"><div class='highlight'><pre>      <span class="hljs-variable language_">this</span>.<span class="hljs-property">options</span>          = _.<span class="hljs-title function_">extend</span>({<span class="hljs-attr">root</span>: <span class="hljs-string">&#x27;/&#x27;</span>}, <span class="hljs-variable language_">this</span>.<span class="hljs-property">options</span>, options);
+      <span class="hljs-variable language_">this</span>.<span class="hljs-property">root</span>             = <span class="hljs-variable language_">this</span>.<span class="hljs-property">options</span>.<span class="hljs-property">root</span>;
+      <span class="hljs-variable language_">this</span>.<span class="hljs-property">_trailingSlash</span>   = <span class="hljs-variable language_">this</span>.<span class="hljs-property">options</span>.<span class="hljs-property">trailingSlash</span>;
+      <span class="hljs-variable language_">this</span>.<span class="hljs-property">_wantsHashChange</span> = <span class="hljs-variable language_">this</span>.<span class="hljs-property">options</span>.<span class="hljs-property">hashChange</span> !== <span class="hljs-literal">false</span>;
+      <span class="hljs-variable language_">this</span>.<span class="hljs-property">_wantsPushState</span>  = !!<span class="hljs-variable language_">this</span>.<span class="hljs-property">options</span>.<span class="hljs-property">pushState</span>;
+      <span class="hljs-variable language_">this</span>.<span class="hljs-property">_hasPushState</span>    = !!(<span class="hljs-variable language_">this</span>.<span class="hljs-property">history</span> &amp;&amp; <span class="hljs-variable language_">this</span>.<span class="hljs-property">history</span>.<span class="hljs-property">pushState</span>);
+      <span class="hljs-variable language_">this</span>.<span class="hljs-property">_usePushState</span>    = <span class="hljs-variable language_">this</span>.<span class="hljs-property">_wantsPushState</span> &amp;&amp; <span class="hljs-variable language_">this</span>.<span class="hljs-property">_hasPushState</span>;
+      <span class="hljs-variable language_">this</span>.<span class="hljs-property">fragment</span>         = <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">getFragment</span>();</pre></div></div>
             
         </li>
         
@@ -4945,6 +5024,21 @@ Is pushState desired … is it available?</p>
               
               <div class="sswrap ">
                 <a class="ss" href="#section-251">&#x00a7;</a>
+              </div>
+              <p>Normalize root to always include a leading and trailing slash.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>      <span class="hljs-variable language_">this</span>.<span class="hljs-property">root</span> = (<span class="hljs-string">&#x27;/&#x27;</span> + <span class="hljs-variable language_">this</span>.<span class="hljs-property">root</span> + <span class="hljs-string">&#x27;/&#x27;</span>).<span class="hljs-title function_">replace</span>(rootStripper, <span class="hljs-string">&#x27;/&#x27;</span>);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-252">
+            <div class="annotation">
+              
+              <div class="sswrap ">
+                <a class="ss" href="#section-252">&#x00a7;</a>
               </div>
               <p>Transition from hashChange to pushState or vice versa if both are
 requested.</p>
@@ -4956,11 +5050,11 @@ requested.</p>
         </li>
         
         
-        <li id="section-252">
+        <li id="section-253">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-252">&#x00a7;</a>
+                <a class="ss" href="#section-253">&#x00a7;</a>
               </div>
               <p>If we’ve started off with a route from a <code>pushState</code>-enabled
 browser, but we’re currently in a browser that doesn’t support it…</p>
@@ -4974,11 +5068,11 @@ browser, but we’re currently in a browser that doesn’t support it…</p>
         </li>
         
         
-        <li id="section-253">
+        <li id="section-254">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-253">&#x00a7;</a>
+                <a class="ss" href="#section-254">&#x00a7;</a>
               </div>
               <p>Return immediately as browser will do redirect to new url</p>
 
@@ -4989,11 +5083,11 @@ browser, but we’re currently in a browser that doesn’t support it…</p>
         </li>
         
         
-        <li id="section-254">
+        <li id="section-255">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-254">&#x00a7;</a>
+                <a class="ss" href="#section-255">&#x00a7;</a>
               </div>
               <p>Or if we’ve started out with a hash-based route, but we’re currently
 in a browser where it could be <code>pushState</code>-based instead…</p>
@@ -5009,43 +5103,25 @@ in a browser where it could be <code>pushState</code>-based instead…</p>
         </li>
         
         
-        <li id="section-255">
-            <div class="annotation">
-              
-              <div class="sswrap ">
-                <a class="ss" href="#section-255">&#x00a7;</a>
-              </div>
-              <p>Proxy an iframe to handle location events if the browser doesn’t
-support the <code>hashchange</code> event, HTML5 history, or the user wants
-<code>hashChange</code> but not <code>pushState</code>.</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>      <span class="hljs-keyword">if</span> (!<span class="hljs-variable language_">this</span>.<span class="hljs-property">_hasHashChange</span> &amp;&amp; <span class="hljs-variable language_">this</span>.<span class="hljs-property">_wantsHashChange</span> &amp;&amp; !<span class="hljs-variable language_">this</span>.<span class="hljs-property">_usePushState</span>) {
-        <span class="hljs-variable language_">this</span>.<span class="hljs-property">iframe</span> = <span class="hljs-variable language_">document</span>.<span class="hljs-title function_">createElement</span>(<span class="hljs-string">&#x27;iframe&#x27;</span>);
-        <span class="hljs-variable language_">this</span>.<span class="hljs-property">iframe</span>.<span class="hljs-property">src</span> = <span class="hljs-string">&#x27;javascript:0&#x27;</span>;
-        <span class="hljs-variable language_">this</span>.<span class="hljs-property">iframe</span>.<span class="hljs-property">style</span>.<span class="hljs-property">display</span> = <span class="hljs-string">&#x27;none&#x27;</span>;
-        <span class="hljs-variable language_">this</span>.<span class="hljs-property">iframe</span>.<span class="hljs-property">tabIndex</span> = -<span class="hljs-number">1</span>;
-        <span class="hljs-keyword">var</span> body = <span class="hljs-variable language_">document</span>.<span class="hljs-property">body</span>;</pre></div></div>
-            
-        </li>
-        
-        
         <li id="section-256">
             <div class="annotation">
               
               <div class="sswrap ">
                 <a class="ss" href="#section-256">&#x00a7;</a>
               </div>
-              <p>Using <code>appendChild</code> will throw on IE &lt; 9 if the document is not ready.</p>
+              <p>Depending on whether we’re using pushState or hashes, determine how we
+check the URL state.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">var</span> iWindow = body.<span class="hljs-title function_">insertBefore</span>(<span class="hljs-variable language_">this</span>.<span class="hljs-property">iframe</span>, body.<span class="hljs-property">firstChild</span>).<span class="hljs-property">contentWindow</span>;
-        iWindow.<span class="hljs-property">document</span>.<span class="hljs-title function_">open</span>();
-        iWindow.<span class="hljs-property">document</span>.<span class="hljs-title function_">close</span>();
-        iWindow.<span class="hljs-property">location</span>.<span class="hljs-property">hash</span> = <span class="hljs-string">&#x27;#&#x27;</span> + <span class="hljs-variable language_">this</span>.<span class="hljs-property">fragment</span>;
-      }</pre></div></div>
+            <div class="content"><div class='highlight'><pre>      <span class="hljs-keyword">if</span> (<span class="hljs-variable language_">this</span>.<span class="hljs-property">_usePushState</span>) {
+        <span class="hljs-variable language_">window</span>.<span class="hljs-title function_">addEventListener</span>(<span class="hljs-string">&#x27;popstate&#x27;</span>, <span class="hljs-variable language_">this</span>.<span class="hljs-property">checkUrl</span>, <span class="hljs-literal">false</span>);
+      } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (<span class="hljs-variable language_">this</span>.<span class="hljs-property">_wantsHashChange</span>) {
+        <span class="hljs-variable language_">window</span>.<span class="hljs-title function_">addEventListener</span>(<span class="hljs-string">&#x27;hashchange&#x27;</span>, <span class="hljs-variable language_">this</span>.<span class="hljs-property">checkUrl</span>, <span class="hljs-literal">false</span>);
+      }
+
+      <span class="hljs-keyword">if</span> (!<span class="hljs-variable language_">this</span>.<span class="hljs-property">options</span>.<span class="hljs-property">silent</span>) <span class="hljs-keyword">return</span> <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">loadUrl</span>();
+    },</pre></div></div>
             
         </li>
         
@@ -5056,13 +5132,12 @@ support the <code>hashchange</code> event, HTML5 history, or the user wants
               <div class="sswrap ">
                 <a class="ss" href="#section-257">&#x00a7;</a>
               </div>
-              <p>Add a cross-platform <code>addEventListener</code> shim for older browsers.</p>
+              <p>Disable Backbone.history, perhaps temporarily. Not useful in a real app,
+but possibly useful for unit testing Routers.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>      <span class="hljs-keyword">var</span> addEventListener = <span class="hljs-variable language_">window</span>.<span class="hljs-property">addEventListener</span> || <span class="hljs-keyword">function</span>(<span class="hljs-params">eventName, listener</span>) {
-        <span class="hljs-keyword">return</span> <span class="hljs-title function_">attachEvent</span>(<span class="hljs-string">&#x27;on&#x27;</span> + eventName, listener);
-      };</pre></div></div>
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">stop</span>(<span class="hljs-params"></span>) {</pre></div></div>
             
         </li>
         
@@ -5073,21 +5148,13 @@ support the <code>hashchange</code> event, HTML5 history, or the user wants
               <div class="sswrap ">
                 <a class="ss" href="#section-258">&#x00a7;</a>
               </div>
-              <p>Depending on whether we’re using pushState or hashes, and whether
-‘onhashchange’ is supported, determine how we check the URL state.</p>
+              <p>Mirror the non-browser guard in <code>start()</code>: a <code>stop()</code> call before any
+successful <code>start()</code> (typical in test cleanup or non-browser code) is
+a no-op rather than a <code>ReferenceError</code> on <code>window</code>/<code>document</code>.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>      <span class="hljs-keyword">if</span> (<span class="hljs-variable language_">this</span>.<span class="hljs-property">_usePushState</span>) {
-        <span class="hljs-title function_">addEventListener</span>(<span class="hljs-string">&#x27;popstate&#x27;</span>, <span class="hljs-variable language_">this</span>.<span class="hljs-property">checkUrl</span>, <span class="hljs-literal">false</span>);
-      } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (<span class="hljs-variable language_">this</span>.<span class="hljs-property">_useHashChange</span> &amp;&amp; !<span class="hljs-variable language_">this</span>.<span class="hljs-property">iframe</span>) {
-        <span class="hljs-title function_">addEventListener</span>(<span class="hljs-string">&#x27;hashchange&#x27;</span>, <span class="hljs-variable language_">this</span>.<span class="hljs-property">checkUrl</span>, <span class="hljs-literal">false</span>);
-      } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (<span class="hljs-variable language_">this</span>.<span class="hljs-property">_wantsHashChange</span>) {
-        <span class="hljs-variable language_">this</span>.<span class="hljs-property">_checkUrlInterval</span> = <span class="hljs-built_in">setInterval</span>(<span class="hljs-variable language_">this</span>.<span class="hljs-property">checkUrl</span>, <span class="hljs-variable language_">this</span>.<span class="hljs-property">interval</span>);
-      }
-
-      <span class="hljs-keyword">if</span> (!<span class="hljs-variable language_">this</span>.<span class="hljs-property">options</span>.<span class="hljs-property">silent</span>) <span class="hljs-keyword">return</span> <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">loadUrl</span>();
-    },</pre></div></div>
+            <div class="content"><div class='highlight'><pre>      <span class="hljs-keyword">if</span> (!<span class="hljs-title class_">History</span>.<span class="hljs-property">started</span>) <span class="hljs-keyword">return</span>;</pre></div></div>
             
         </li>
         
@@ -5098,12 +5165,18 @@ support the <code>hashchange</code> event, HTML5 history, or the user wants
               <div class="sswrap ">
                 <a class="ss" href="#section-259">&#x00a7;</a>
               </div>
-              <p>Disable Backbone.history, perhaps temporarily. Not useful in a real app,
-but possibly useful for unit testing Routers.</p>
+              <p>Remove window listeners.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">stop</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) {</pre></div></div>
+            <div class="content"><div class='highlight'><pre>      <span class="hljs-keyword">if</span> (<span class="hljs-variable language_">this</span>.<span class="hljs-property">_usePushState</span>) {
+        <span class="hljs-variable language_">window</span>.<span class="hljs-title function_">removeEventListener</span>(<span class="hljs-string">&#x27;popstate&#x27;</span>, <span class="hljs-variable language_">this</span>.<span class="hljs-property">checkUrl</span>, <span class="hljs-literal">false</span>);
+      } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (<span class="hljs-variable language_">this</span>.<span class="hljs-property">_wantsHashChange</span>) {
+        <span class="hljs-variable language_">window</span>.<span class="hljs-title function_">removeEventListener</span>(<span class="hljs-string">&#x27;hashchange&#x27;</span>, <span class="hljs-variable language_">this</span>.<span class="hljs-property">checkUrl</span>, <span class="hljs-literal">false</span>);
+      }
+
+      <span class="hljs-title class_">History</span>.<span class="hljs-property">started</span> = <span class="hljs-literal">false</span>;
+    },</pre></div></div>
             
         </li>
         
@@ -5114,13 +5187,14 @@ but possibly useful for unit testing Routers.</p>
               <div class="sswrap ">
                 <a class="ss" href="#section-260">&#x00a7;</a>
               </div>
-              <p>Add a cross-platform <code>removeEventListener</code> shim for older browsers.</p>
+              <p>Add a route to be tested when the fragment changes. Routes added later
+may override previous routes.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>      <span class="hljs-keyword">var</span> removeEventListener = <span class="hljs-variable language_">window</span>.<span class="hljs-property">removeEventListener</span> || <span class="hljs-keyword">function</span>(<span class="hljs-params">eventName, listener</span>) {
-        <span class="hljs-keyword">return</span> <span class="hljs-title function_">detachEvent</span>(<span class="hljs-string">&#x27;on&#x27;</span> + eventName, listener);
-      };</pre></div></div>
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">route</span>(<span class="hljs-params">route, callback</span>) {
+      <span class="hljs-variable language_">this</span>.<span class="hljs-property">handlers</span>.<span class="hljs-title function_">unshift</span>({<span class="hljs-attr">route</span>: route, <span class="hljs-attr">callback</span>: callback});
+    },</pre></div></div>
             
         </li>
         
@@ -5131,15 +5205,19 @@ but possibly useful for unit testing Routers.</p>
               <div class="sswrap ">
                 <a class="ss" href="#section-261">&#x00a7;</a>
               </div>
-              <p>Remove window listeners.</p>
+              <p>Checks the current URL to see if it has changed, and if it has,
+calls <code>loadUrl</code>.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>      <span class="hljs-keyword">if</span> (<span class="hljs-variable language_">this</span>.<span class="hljs-property">_usePushState</span>) {
-        <span class="hljs-title function_">removeEventListener</span>(<span class="hljs-string">&#x27;popstate&#x27;</span>, <span class="hljs-variable language_">this</span>.<span class="hljs-property">checkUrl</span>, <span class="hljs-literal">false</span>);
-      } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (<span class="hljs-variable language_">this</span>.<span class="hljs-property">_useHashChange</span> &amp;&amp; !<span class="hljs-variable language_">this</span>.<span class="hljs-property">iframe</span>) {
-        <span class="hljs-title function_">removeEventListener</span>(<span class="hljs-string">&#x27;hashchange&#x27;</span>, <span class="hljs-variable language_">this</span>.<span class="hljs-property">checkUrl</span>, <span class="hljs-literal">false</span>);
-      }</pre></div></div>
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">checkUrl</span>(<span class="hljs-params">e</span>) {
+      <span class="hljs-keyword">var</span> current = <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">getFragment</span>();
+      <span class="hljs-keyword">if</span> (current === <span class="hljs-variable language_">this</span>.<span class="hljs-property">fragment</span>) {
+        <span class="hljs-keyword">if</span> (!<span class="hljs-variable language_">this</span>.<span class="hljs-title function_">matchRoot</span>()) <span class="hljs-keyword">return</span> <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">notfound</span>();
+        <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
+      }
+      <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">loadUrl</span>();
+    },</pre></div></div>
             
         </li>
         
@@ -5150,14 +5228,13 @@ but possibly useful for unit testing Routers.</p>
               <div class="sswrap ">
                 <a class="ss" href="#section-262">&#x00a7;</a>
               </div>
-              <p>Clean up the iframe if necessary.</p>
+              <p>Attempt to load the current URL fragment. If a route succeeds with a
+match, returns <code>true</code>. If no defined routes matches the fragment,
+returns <code>false</code>.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>      <span class="hljs-keyword">if</span> (<span class="hljs-variable language_">this</span>.<span class="hljs-property">iframe</span>) {
-        <span class="hljs-variable language_">document</span>.<span class="hljs-property">body</span>.<span class="hljs-title function_">removeChild</span>(<span class="hljs-variable language_">this</span>.<span class="hljs-property">iframe</span>);
-        <span class="hljs-variable language_">this</span>.<span class="hljs-property">iframe</span> = <span class="hljs-literal">null</span>;
-      }</pre></div></div>
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">loadUrl</span>(<span class="hljs-params">fragment</span>) {</pre></div></div>
             
         </li>
         
@@ -5167,101 +5244,6 @@ but possibly useful for unit testing Routers.</p>
               
               <div class="sswrap ">
                 <a class="ss" href="#section-263">&#x00a7;</a>
-              </div>
-              <p>Some environments will throw when clearing an undefined interval.</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>      <span class="hljs-keyword">if</span> (<span class="hljs-variable language_">this</span>.<span class="hljs-property">_checkUrlInterval</span>) <span class="hljs-built_in">clearInterval</span>(<span class="hljs-variable language_">this</span>.<span class="hljs-property">_checkUrlInterval</span>);
-      <span class="hljs-title class_">History</span>.<span class="hljs-property">started</span> = <span class="hljs-literal">false</span>;
-    },</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-264">
-            <div class="annotation">
-              
-              <div class="sswrap ">
-                <a class="ss" href="#section-264">&#x00a7;</a>
-              </div>
-              <p>Add a route to be tested when the fragment changes. Routes added later
-may override previous routes.</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">route</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params">route, callback</span>) {
-      <span class="hljs-variable language_">this</span>.<span class="hljs-property">handlers</span>.<span class="hljs-title function_">unshift</span>({<span class="hljs-attr">route</span>: route, <span class="hljs-attr">callback</span>: callback});
-    },</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-265">
-            <div class="annotation">
-              
-              <div class="sswrap ">
-                <a class="ss" href="#section-265">&#x00a7;</a>
-              </div>
-              <p>Checks the current URL to see if it has changed, and if it has,
-calls <code>loadUrl</code>, normalizing across the hidden iframe.</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">checkUrl</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params">e</span>) {
-      <span class="hljs-keyword">var</span> current = <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">getFragment</span>();</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-266">
-            <div class="annotation">
-              
-              <div class="sswrap ">
-                <a class="ss" href="#section-266">&#x00a7;</a>
-              </div>
-              <p>If the user pressed the back button, the iframe’s hash will have
-changed and we should use that for comparison.</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>      <span class="hljs-keyword">if</span> (current === <span class="hljs-variable language_">this</span>.<span class="hljs-property">fragment</span> &amp;&amp; <span class="hljs-variable language_">this</span>.<span class="hljs-property">iframe</span>) {
-        current = <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">getHash</span>(<span class="hljs-variable language_">this</span>.<span class="hljs-property">iframe</span>.<span class="hljs-property">contentWindow</span>);
-      }
-
-      <span class="hljs-keyword">if</span> (current === <span class="hljs-variable language_">this</span>.<span class="hljs-property">fragment</span>) {
-        <span class="hljs-keyword">if</span> (!<span class="hljs-variable language_">this</span>.<span class="hljs-title function_">matchRoot</span>()) <span class="hljs-keyword">return</span> <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">notfound</span>();
-        <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
-      }
-      <span class="hljs-keyword">if</span> (<span class="hljs-variable language_">this</span>.<span class="hljs-property">iframe</span>) <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">navigate</span>(current);
-      <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">loadUrl</span>();
-    },</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-267">
-            <div class="annotation">
-              
-              <div class="sswrap ">
-                <a class="ss" href="#section-267">&#x00a7;</a>
-              </div>
-              <p>Attempt to load the current URL fragment. If a route succeeds with a
-match, returns <code>true</code>. If no defined routes matches the fragment,
-returns <code>false</code>.</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">loadUrl</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params">fragment</span>) {</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-268">
-            <div class="annotation">
-              
-              <div class="sswrap ">
-                <a class="ss" href="#section-268">&#x00a7;</a>
               </div>
               <p>If the root doesn’t match, no routes can match either.</p>
 
@@ -5280,11 +5262,11 @@ returns <code>false</code>.</p>
         </li>
         
         
-        <li id="section-269">
+        <li id="section-264">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-269">&#x00a7;</a>
+                <a class="ss" href="#section-264">&#x00a7;</a>
               </div>
               <p>When no route could be matched, this method is called internally to
 trigger the <code>&#39;notfound&#39;</code> event. It returns <code>false</code> so that it can be used
@@ -5292,7 +5274,7 @@ in tail position.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">notfound</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) {
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">notfound</span>(<span class="hljs-params"></span>) {
       <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">trigger</span>(<span class="hljs-string">&#x27;notfound&#x27;</span>);
       <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
     },</pre></div></div>
@@ -5300,11 +5282,11 @@ in tail position.</p>
         </li>
         
         
-        <li id="section-270">
+        <li id="section-265">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-270">&#x00a7;</a>
+                <a class="ss" href="#section-265">&#x00a7;</a>
               </div>
               <p>Save a fragment into the hash history, or replace the URL state if the
 ‘replace’ option is passed. You are responsible for properly URL-encoding
@@ -5315,18 +5297,18 @@ you wish to modify the current URL without adding an entry to the history.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">navigate</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params">fragment, options</span>) {
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">navigate</span>(<span class="hljs-params">fragment, options</span>) {
       <span class="hljs-keyword">if</span> (!<span class="hljs-title class_">History</span>.<span class="hljs-property">started</span>) <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
       <span class="hljs-keyword">if</span> (!options || options === <span class="hljs-literal">true</span>) options = {<span class="hljs-attr">trigger</span>: !!options};</pre></div></div>
             
         </li>
         
         
-        <li id="section-271">
+        <li id="section-266">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-271">&#x00a7;</a>
+                <a class="ss" href="#section-266">&#x00a7;</a>
               </div>
               <p>Normalize the fragment.</p>
 
@@ -5337,11 +5319,11 @@ you wish to modify the current URL without adding an entry to the history.</p>
         </li>
         
         
-        <li id="section-272">
+        <li id="section-267">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-272">&#x00a7;</a>
+                <a class="ss" href="#section-267">&#x00a7;</a>
               </div>
               <p>Strip trailing slash on the root unless _trailingSlash is true</p>
 
@@ -5356,11 +5338,11 @@ you wish to modify the current URL without adding an entry to the history.</p>
         </li>
         
         
-        <li id="section-273">
+        <li id="section-268">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-273">&#x00a7;</a>
+                <a class="ss" href="#section-268">&#x00a7;</a>
               </div>
               <p>Strip the fragment of the query and hash for matching.</p>
 
@@ -5371,11 +5353,11 @@ you wish to modify the current URL without adding an entry to the history.</p>
         </li>
         
         
-        <li id="section-274">
+        <li id="section-269">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-274">&#x00a7;</a>
+                <a class="ss" href="#section-269">&#x00a7;</a>
               </div>
               <p>Decode for matching.</p>
 
@@ -5389,11 +5371,11 @@ you wish to modify the current URL without adding an entry to the history.</p>
         </li>
         
         
-        <li id="section-275">
+        <li id="section-270">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-275">&#x00a7;</a>
+                <a class="ss" href="#section-270">&#x00a7;</a>
               </div>
               <p>If pushState is available, we use it to set the fragment as a real URL.</p>
 
@@ -5405,11 +5387,11 @@ you wish to modify the current URL without adding an entry to the history.</p>
         </li>
         
         
-        <li id="section-276">
+        <li id="section-271">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-276">&#x00a7;</a>
+                <a class="ss" href="#section-271">&#x00a7;</a>
               </div>
               <p>If hash changes haven’t been explicitly disabled, update the hash
 fragment to store history.</p>
@@ -5417,41 +5399,16 @@ fragment to store history.</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>      } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (<span class="hljs-variable language_">this</span>.<span class="hljs-property">_wantsHashChange</span>) {
-        <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">_updateHash</span>(<span class="hljs-variable language_">this</span>.<span class="hljs-property">location</span>, fragment, options.<span class="hljs-property">replace</span>);
-        <span class="hljs-keyword">if</span> (<span class="hljs-variable language_">this</span>.<span class="hljs-property">iframe</span> &amp;&amp; fragment !== <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">getHash</span>(<span class="hljs-variable language_">this</span>.<span class="hljs-property">iframe</span>.<span class="hljs-property">contentWindow</span>)) {
-          <span class="hljs-keyword">var</span> iWindow = <span class="hljs-variable language_">this</span>.<span class="hljs-property">iframe</span>.<span class="hljs-property">contentWindow</span>;</pre></div></div>
+        <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">_updateHash</span>(<span class="hljs-variable language_">this</span>.<span class="hljs-property">location</span>, fragment, options.<span class="hljs-property">replace</span>);</pre></div></div>
             
         </li>
         
         
-        <li id="section-277">
+        <li id="section-272">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-277">&#x00a7;</a>
-              </div>
-              <p>Opening and closing the iframe tricks IE7 and earlier to push a
-history entry on hash-tag change.  When replace is true, we don’t
-want this.</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>          <span class="hljs-keyword">if</span> (!options.<span class="hljs-property">replace</span>) {
-            iWindow.<span class="hljs-property">document</span>.<span class="hljs-title function_">open</span>();
-            iWindow.<span class="hljs-property">document</span>.<span class="hljs-title function_">close</span>();
-          }
-
-          <span class="hljs-variable language_">this</span>.<span class="hljs-title function_">_updateHash</span>(iWindow.<span class="hljs-property">location</span>, fragment, options.<span class="hljs-property">replace</span>);
-        }</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-278">
-            <div class="annotation">
-              
-              <div class="sswrap ">
-                <a class="ss" href="#section-278">&#x00a7;</a>
+                <a class="ss" href="#section-272">&#x00a7;</a>
               </div>
               <p>If you’ve told us that you explicitly don’t want fallback hashchange-
 based history, then <code>navigate</code> becomes a page refresh.</p>
@@ -5467,18 +5424,18 @@ based history, then <code>navigate</code> becomes a page refresh.</p>
         </li>
         
         
-        <li id="section-279">
+        <li id="section-273">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-279">&#x00a7;</a>
+                <a class="ss" href="#section-273">&#x00a7;</a>
               </div>
               <p>Update the hash location, either replacing the current entry, or adding
 a new one to the browser history.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-attr">_updateHash</span>: <span class="hljs-keyword">function</span>(<span class="hljs-params">location, fragment, replace</span>) {
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-title function_">_updateHash</span>(<span class="hljs-params">location, fragment, replace</span>) {
       <span class="hljs-keyword">if</span> (replace) {
         <span class="hljs-keyword">var</span> href = location.<span class="hljs-property">href</span>.<span class="hljs-title function_">replace</span>(<span class="hljs-regexp">/(javascript:|#).*$/</span>, <span class="hljs-string">&#x27;&#x27;</span>);
         location.<span class="hljs-title function_">replace</span>(href + <span class="hljs-string">&#x27;#&#x27;</span> + fragment);
@@ -5487,11 +5444,11 @@ a new one to the browser history.</p>
         </li>
         
         
-        <li id="section-280">
+        <li id="section-274">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-280">&#x00a7;</a>
+                <a class="ss" href="#section-274">&#x00a7;</a>
               </div>
               <p>Some browsers require that <code>hash</code> contains a leading #.</p>
 
@@ -5506,11 +5463,11 @@ a new one to the browser history.</p>
         </li>
         
         
-        <li id="section-281">
+        <li id="section-275">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-281">&#x00a7;</a>
+                <a class="ss" href="#section-275">&#x00a7;</a>
               </div>
               <p>Create the default Backbone.history.</p>
 
@@ -5521,11 +5478,11 @@ a new one to the browser history.</p>
         </li>
         
         
-        <li id="section-282">
+        <li id="section-276">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-282">&#x00a7;</a>
+                <a class="ss" href="#section-276">&#x00a7;</a>
               </div>
               <h2 id="helpers">Helpers</h2>
 
@@ -5534,11 +5491,11 @@ a new one to the browser history.</p>
         </li>
         
         
-        <li id="section-283">
+        <li id="section-277">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-283">&#x00a7;</a>
+                <a class="ss" href="#section-277">&#x00a7;</a>
               </div>
               
             </div>
@@ -5546,11 +5503,11 @@ a new one to the browser history.</p>
         </li>
         
         
-        <li id="section-284">
+        <li id="section-278">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-284">&#x00a7;</a>
+                <a class="ss" href="#section-278">&#x00a7;</a>
               </div>
               <p>Helper function to correctly set up the prototype chain for subclasses.
 Similar to <code>goog.inherits</code>, but uses a hash of prototype properties and
@@ -5565,11 +5522,11 @@ class properties to be extended.</p>
         </li>
         
         
-        <li id="section-285">
+        <li id="section-279">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-285">&#x00a7;</a>
+                <a class="ss" href="#section-279">&#x00a7;</a>
               </div>
               <p>The constructor function for the new subclass is either defined by you
 (the “constructor” property in your <code>extend</code> definition), or defaulted
@@ -5586,11 +5543,11 @@ by us to simply call the parent constructor.</p>
         </li>
         
         
-        <li id="section-286">
+        <li id="section-280">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-286">&#x00a7;</a>
+                <a class="ss" href="#section-280">&#x00a7;</a>
               </div>
               <p>Add static properties to the constructor function, if supplied.
 Priority: <code>staticProps</code> wins, then the child constructor’s own
@@ -5606,11 +5563,11 @@ constructor — which is unwanted.</p>
         </li>
         
         
-        <li id="section-287">
+        <li id="section-281">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-287">&#x00a7;</a>
+                <a class="ss" href="#section-281">&#x00a7;</a>
               </div>
               <p>Set the prototype chain to inherit from <code>parent</code>, without calling
 <code>parent</code>‘s constructor function and add the prototype properties.</p>
@@ -5623,11 +5580,11 @@ constructor — which is unwanted.</p>
         </li>
         
         
-        <li id="section-288">
+        <li id="section-282">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-288">&#x00a7;</a>
+                <a class="ss" href="#section-282">&#x00a7;</a>
               </div>
               <p>Set a convenience property in case the parent’s prototype is needed
 later.</p>
@@ -5642,11 +5599,11 @@ later.</p>
         </li>
         
         
-        <li id="section-289">
+        <li id="section-283">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-289">&#x00a7;</a>
+                <a class="ss" href="#section-283">&#x00a7;</a>
               </div>
               <p>Set up inheritance for the model, collection, router, view and history.</p>
 
@@ -5657,11 +5614,11 @@ later.</p>
         </li>
         
         
-        <li id="section-290">
+        <li id="section-284">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-290">&#x00a7;</a>
+                <a class="ss" href="#section-284">&#x00a7;</a>
               </div>
               <p>Throw an error when a URL is needed, and none is supplied.</p>
 
@@ -5674,11 +5631,11 @@ later.</p>
         </li>
         
         
-        <li id="section-291">
+        <li id="section-285">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-291">&#x00a7;</a>
+                <a class="ss" href="#section-285">&#x00a7;</a>
               </div>
               <p>Wrap an optional error callback with a fallback error event.</p>
 
@@ -5695,11 +5652,11 @@ later.</p>
         </li>
         
         
-        <li id="section-292">
+        <li id="section-286">
             <div class="annotation">
               
               <div class="sswrap ">
-                <a class="ss" href="#section-292">&#x00a7;</a>
+                <a class="ss" href="#section-286">&#x00a7;</a>
               </div>
               <p>Provide useful information when things go wrong. This method is not meant
 to be used directly; it merely provides the necessary introspection for the
