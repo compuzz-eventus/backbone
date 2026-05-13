@@ -122,8 +122,16 @@
     return events;
   };
 
-  // Bind an event to a `callback` function. Passing `"all"` will bind
-  // the callback to all events fired.
+  /**
+   * Bind an event to a `callback` function. Passing `"all"` will bind the
+   * callback to every event fired on this object.
+   *
+   * @memberof Backbone.Events
+   * @param {string|Object} name Event name(s), or `{event: callback}` map.
+   * @param {Function} [callback]
+   * @param {*} [context] `this` for the callback when invoked.
+   * @returns {this}
+   */
   Events.on = function(name, callback, context) {
     this._events = eventsApi(onApi, this._events || {}, name, callback, {
       context: context,
@@ -142,9 +150,17 @@
     return this;
   };
 
-  // Inversion-of-control versions of `on`. Tell *this* object to listen to
-  // an event in another object... keeping track of what it's listening to
-  // for easier unbinding later.
+  /**
+   * Inversion-of-control version of `on`. Tell *this* object to listen to
+   * an event in another object; this object tracks the binding for easier
+   * cleanup via `stopListening`.
+   *
+   * @memberof Backbone.Events
+   * @param {Object} obj Event source.
+   * @param {string|Object} name Event name(s), or `{event: callback}` map.
+   * @param {Function} [callback]
+   * @returns {this}
+   */
   Events.listenTo = function(obj, name, callback) {
     if (!obj) return this;
     var id = obj._listenId || (obj._listenId = _.uniqueId('l'));
@@ -197,10 +213,18 @@
     }
   };
 
-  // Remove one or many callbacks. If `context` is null, removes all
-  // callbacks with that function. If `callback` is null, removes all
-  // callbacks for the event. If `name` is null, removes all bound
-  // callbacks for all events.
+  /**
+   * Remove one or many callbacks. With no arguments, removes every
+   * callback for every event. With just `name`, removes every callback
+   * for that event. With `name` and `callback`, removes that specific
+   * binding.
+   *
+   * @memberof Backbone.Events
+   * @param {string|Object|null} [name]
+   * @param {Function} [callback]
+   * @param {*} [context]
+   * @returns {this}
+   */
   Events.off = function(name, callback, context) {
     if (!this._events) return this;
     this._events = eventsApi(offApi, this._events, name, callback, {
@@ -211,8 +235,16 @@
     return this;
   };
 
-  // Tell this object to stop listening to either specific events ... or
-  // to every object it's currently listening to.
+  /**
+   * Stop listening to either specific events from a particular source, or
+   * (with no arguments) every binding this object created via `listenTo`.
+   *
+   * @memberof Backbone.Events
+   * @param {Object} [obj] Event source; omit to stop all.
+   * @param {string} [name]
+   * @param {Function} [callback]
+   * @returns {this}
+   */
   Events.stopListening = function(obj, name, callback) {
     var listeningTo = this._listeningTo;
     if (!listeningTo) return this;
@@ -284,10 +316,17 @@
     return events;
   };
 
-  // Bind an event to only be triggered a single time. After the first time
-  // the callback is invoked, its listener will be removed. If multiple events
-  // are passed in using the space-separated syntax, the handler will fire
-  // once for each event, not once for a combination of all events.
+  /**
+   * Bind an event to fire only once. After the first invocation, the
+   * listener is removed. With space-separated event names, the handler
+   * fires once per event, not once total.
+   *
+   * @memberof Backbone.Events
+   * @param {string|Object} name
+   * @param {Function} [callback]
+   * @param {*} [context]
+   * @returns {this}
+   */
   Events.once = function(name, callback, context) {
     // Map the event into a `{event: once}` object.
     var events = eventsApi(onceMap, {}, name, callback, this.off.bind(this));
@@ -295,7 +334,16 @@
     return this.on(events, callback, context);
   };
 
-  // Inversion-of-control versions of `once`.
+  /**
+   * Inversion-of-control version of `once`. Same semantics as `listenTo`,
+   * but the binding auto-removes after the first invocation per event.
+   *
+   * @memberof Backbone.Events
+   * @param {Object} obj
+   * @param {string|Object} name
+   * @param {Function} [callback]
+   * @returns {this}
+   */
   Events.listenToOnce = function(obj, name, callback) {
     // Map the event into a `{event: once}` object.
     var events = eventsApi(onceMap, {}, name, callback, this.stopListening.bind(this, obj));
@@ -315,10 +363,16 @@
     return map;
   };
 
-  // Trigger one or many events, firing all bound callbacks. Callbacks are
-  // passed the same arguments as `trigger` is, apart from the event name
-  // (unless you're listening on `"all"`, which will cause your callback to
-  // receive the true name of the event as the first argument).
+  /**
+   * Trigger one or many events, firing all bound callbacks. Callbacks
+   * receive the same arguments as `trigger`, apart from the event name.
+   * Listeners on `"all"` receive the event name as the first argument.
+   *
+   * @memberof Backbone.Events
+   * @param {string} name Space-separated event names.
+   * @param {...*} args Forwarded to every callback.
+   * @returns {this}
+   */
   Events.trigger = function(name) {
     if (!this._events) return this;
 
@@ -410,8 +464,18 @@
   // A discrete chunk of data and a bunch of useful, related methods for
   // performing computations and transformations on that data.
 
-  // Create a new model with the specified attributes. A client id (`cid`)
-  // is automatically generated and assigned for you.
+  /**
+   * Create a new model with the specified attributes. A client id (`cid`)
+   * is automatically generated and assigned for you.
+   *
+   * @class Backbone.Model
+   * @mixes Backbone.Events
+   * @param {Object} [attributes] Initial attribute values.
+   * @param {Object} [options]
+   * @param {Backbone.Collection} [options.collection] Collection this model belongs to.
+   * @param {boolean} [options.parse] If true, run `attributes` through `this.parse()` first.
+   * @param {boolean} [options.silent] If true, skip firing `change` events.
+   */
   var Model = Backbone.Model = function(attributes, options) {
     var attrs = attributes || {};
     options || (options = {});
@@ -448,49 +512,85 @@
     // You may want to override this if you're experiencing name clashes with model ids.
     cidPrefix: 'c',
 
-    // preinitialize is an empty function by default. You can override it with a function
-    // or object.  preinitialize will run before any instantiation logic is run in the Model.
+    /**
+     * Empty function by default. Override it with a function or object.
+     * `preinitialize` runs before any instantiation logic is run in the Model.
+     */
     preinitialize() {},
 
-    // Initialize is an empty function by default. Override it with your own
-    // initialization logic.
+    /**
+     * Empty function by default. Override it with your own initialization
+     * logic. Called after `set` has loaded the initial attributes.
+     */
     initialize() {},
 
-    // Return a copy of the model's `attributes` object.
+    /**
+     * Return a copy of the model's `attributes` object.
+     * @param {Object} [options] Reserved for subclass overrides.
+     * @returns {Object}
+     */
     toJSON(options) {
       return _.clone(this.attributes);
     },
 
-    // Proxy `Backbone.sync` by default -- but override this if you need
-    // custom syncing semantics for *this* particular model.
+    /**
+     * Proxy `Backbone.sync` by default -- override this if you need custom
+     * syncing semantics for *this* particular model.
+     * @returns {*} Whatever `Backbone.sync` returns (typically a thenable).
+     */
     sync() {
       return Backbone.sync.apply(this, arguments);
     },
 
-    // Get the value of an attribute.
+    /**
+     * Get the value of an attribute.
+     * @param {string} attr Attribute name.
+     * @returns {*}
+     */
     get(attr) {
       return this.attributes[attr];
     },
 
-    // Get the HTML-escaped value of an attribute.
+    /**
+     * Get the HTML-escaped value of an attribute.
+     * @param {string} attr Attribute name.
+     * @returns {string}
+     */
     escape(attr) {
       return _.escape(this.get(attr));
     },
 
-    // Returns `true` if the attribute contains a value that is not null
-    // or undefined.
+    /**
+     * Returns `true` if the attribute contains a value that is not null
+     * or undefined.
+     * @param {string} attr Attribute name.
+     * @returns {boolean}
+     */
     has(attr) {
       return this.get(attr) != null;
     },
 
-    // Special-cased proxy to underscore's `_.matches` method.
+    /**
+     * Returns `true` if the model's attributes match the given partial
+     * attributes hash (proxy to Underscore's `_.matches`).
+     * @param {Object|Function} attrs Partial attributes hash, or iteratee.
+     * @returns {boolean}
+     */
     matches(attrs) {
       return !!_.iteratee(attrs, this)(this.attributes);
     },
 
-    // Set a hash of model attributes on the object, firing `"change"`. This is
-    // the core primitive operation of a model, updating the data and notifying
-    // anyone who needs to know about the change in state. The heart of the beast.
+    /**
+     * Set a hash of model attributes on the object, firing `"change"`. The
+     * core primitive operation of a model: updates the data and notifies
+     * anyone who needs to know about the change in state.
+     * @param {string|Object} key Attribute name, or `{key: value}` hash.
+     * @param {*} [val] Value if `key` is a string.
+     * @param {Object} [options]
+     * @param {boolean} [options.silent] If true, suppress `change` events.
+     * @param {boolean} [options.unset] If true, delete attributes instead of setting.
+     * @returns {this|false} `this` on success, `false` if validation failed.
+     */
     set(key, val, options) {
       if (key == null) return this;
 
@@ -570,32 +670,50 @@
       return this;
     },
 
-    // Remove an attribute from the model, firing `"change"`. `unset` is a noop
-    // if the attribute doesn't exist.
+    /**
+     * Remove an attribute from the model, firing `"change"`. No-op if the
+     * attribute doesn't exist.
+     * @param {string} attr Attribute name to unset.
+     * @param {Object} [options]
+     * @returns {this|false}
+     */
     unset(attr, options) {
       return this.set(attr, void 0, _.extend({}, options, {unset: true}));
     },
 
-    // Clear all attributes on the model, firing `"change"`.
+    /**
+     * Clear all attributes on the model, firing `"change"`.
+     * @param {Object} [options]
+     * @returns {this|false}
+     */
     clear(options) {
       var attrs = {};
       for (var key in this.attributes) attrs[key] = void 0;
       return this.set(attrs, _.extend({}, options, {unset: true}));
     },
 
-    // Determine if the model has changed since the last `"change"` event.
-    // If you specify an attribute name, determine if that attribute has changed.
+    /**
+     * Determine if the model has changed since the last `"change"` event.
+     * If you specify an attribute name, determine if that attribute has
+     * changed.
+     * @param {string} [attr] Attribute name to check; omit to check the whole model.
+     * @returns {boolean}
+     */
     hasChanged(attr) {
       if (attr == null) return !_.isEmpty(this.changed);
       return _.has(this.changed, attr);
     },
 
-    // Return an object containing all the attributes that have changed, or
-    // false if there are no changed attributes. Useful for determining what
-    // parts of a view need to be updated and/or what attributes need to be
-    // persisted to the server. Unset attributes will be set to undefined.
-    // You can also pass an attributes object to diff against the model,
-    // determining if there *would be* a change.
+    /**
+     * Return an object containing all the attributes that have changed, or
+     * `false` if there are no changed attributes. Useful for determining
+     * what parts of a view need to be updated and/or what attributes need
+     * to be persisted to the server. Unset attributes will be set to
+     * undefined. You can also pass an attributes object to diff against
+     * the model, determining if there *would be* a change.
+     * @param {Object} [diff] Optional attributes hash to diff against.
+     * @returns {Object|false}
+     */
     changedAttributes(diff) {
       if (!diff) return this.hasChanged() ? _.clone(this.changed) : false;
       var old = this._changing ? this._previousAttributes : this.attributes;
@@ -610,21 +728,33 @@
       return hasChanged ? changed : false;
     },
 
-    // Get the previous value of an attribute, recorded at the time the last
-    // `"change"` event was fired.
+    /**
+     * Get the previous value of an attribute, recorded at the time the
+     * last `"change"` event was fired.
+     * @param {string} attr Attribute name.
+     * @returns {*}
+     */
     previous(attr) {
       if (attr == null || !this._previousAttributes) return null;
       return this._previousAttributes[attr];
     },
 
-    // Get all of the attributes of the model at the time of the previous
-    // `"change"` event.
+    /**
+     * Get all of the attributes of the model at the time of the previous
+     * `"change"` event.
+     * @returns {Object}
+     */
     previousAttributes() {
       return _.clone(this._previousAttributes);
     },
 
-    // Fetch the model from the server, merging the response with the model's
-    // local attributes. Any changed attributes will trigger a "change" event.
+    /**
+     * Fetch the model from the server, merging the response with the
+     * model's local attributes. Any changed attributes will trigger a
+     * `"change"` event.
+     * @param {Object} [options] Forwarded to `Backbone.sync` and to `set`.
+     * @returns {*} The thenable returned by `Backbone.sync`.
+     */
     fetch(options) {
       options = _.extend({parse: true}, options);
       var model = this;
@@ -639,9 +769,18 @@
       return this.sync('read', this, options);
     },
 
-    // Set a hash of model attributes, and sync the model to the server.
-    // If the server returns an attributes hash that differs, the model's
-    // state will be `set` again.
+    /**
+     * Set a hash of model attributes, and sync the model to the server.
+     * If the server returns an attributes hash that differs, the model's
+     * state will be `set` again.
+     * @param {string|Object|null} [key] Attribute name, or `{key: value}` hash, or null.
+     * @param {*} [val] Value if `key` is a string.
+     * @param {Object} [options]
+     * @param {boolean} [options.wait] If true, wait for server before updating attributes.
+     * @param {boolean} [options.patch] If true, use PATCH and only send changed attrs.
+     * @param {boolean} [options.validate=true] Run `validate` before sending.
+     * @returns {*|false} The sync thenable, or `false` if validation/set failed.
+     */
     save(key, val, options) {
       // Handle both `"key", value` and `{key: value}` -style arguments.
       var attrs;
@@ -693,9 +832,13 @@
       return xhr;
     },
 
-    // Destroy this model on the server if it was already persisted.
-    // Optimistically removes the model from its collection, if it has one.
-    // If `wait: true` is passed, waits for the server to respond before removal.
+    /**
+     * Destroy this model on the server if it was already persisted.
+     * Optimistically removes the model from its collection, if it has one.
+     * @param {Object} [options]
+     * @param {boolean} [options.wait] If true, wait for the server to respond before removal.
+     * @returns {*|false} The sync thenable, or `false` if the model is new.
+     */
     destroy(options) {
       options = options ? _.clone(options) : {};
       var model = this;
@@ -724,9 +867,13 @@
       return xhr;
     },
 
-    // Default URL for the model's representation on the server -- if you're
-    // using Backbone's restful methods, override this to change the endpoint
-    // that will be called.
+    /**
+     * Default URL for the model's representation on the server. If you're
+     * using Backbone's RESTful methods, override this to change the
+     * endpoint that will be called.
+     * @returns {string}
+     * @throws {Error} If no `url` / `urlRoot` / `collection.url` is available.
+     */
     url() {
       var base =
         _.result(this, 'urlRoot') ||
@@ -737,23 +884,40 @@
       return base.replace(/[^\/]$/, '$&/') + encodeURIComponent(id);
     },
 
-    // **parse** converts a response into the hash of attributes to be `set` on
-    // the model. The default implementation is just to pass the response along.
+    /**
+     * Converts a response into the hash of attributes to be `set` on the
+     * model. The default implementation passes the response through
+     * unchanged.
+     * @param {*} resp Server response.
+     * @param {Object} [options]
+     * @returns {Object}
+     */
     parse(resp, options) {
       return resp;
     },
 
-    // Create a new model with identical attributes to this one.
+    /**
+     * Create a new model with identical attributes to this one.
+     * @returns {Backbone.Model}
+     */
     clone() {
       return new this.constructor(this.attributes);
     },
 
-    // A model is new if it has never been saved to the server, and lacks an id.
+    /**
+     * A model is new if it has never been saved to the server, and lacks
+     * an id.
+     * @returns {boolean}
+     */
     isNew() {
       return !this.has(this.idAttribute);
     },
 
-    // Check if the model is currently in a valid state.
+    /**
+     * Check if the model is currently in a valid state.
+     * @param {Object} [options]
+     * @returns {boolean}
+     */
     isValid(options) {
       return this._validate({}, _.extend({}, options, {validate: true}));
     },
@@ -781,9 +945,18 @@
   // belonging to this particular author, and so on. Collections maintain
   // indexes of their models, both in order, and for lookup by `id`.
 
-  // Create a new **Collection**, perhaps to contain a specific type of `model`.
-  // If a `comparator` is specified, the Collection will maintain
-  // its models in sort order, as they're added and removed.
+  /**
+   * Create a new **Collection**, perhaps to contain a specific type of
+   * `model`. If a `comparator` is specified, the Collection will maintain
+   * its models in sort order, as they're added and removed.
+   *
+   * @class Backbone.Collection
+   * @mixes Backbone.Events
+   * @param {Array<Object|Backbone.Model>} [models] Initial models.
+   * @param {Object} [options]
+   * @param {typeof Backbone.Model} [options.model] Model class for raw attributes.
+   * @param {string|Function} [options.comparator] Sort attribute or function.
+   */
   var Collection = Backbone.Collection = function(models, options) {
     options || (options = {});
     this.preinitialize.apply(this, arguments);
@@ -817,33 +990,55 @@
     model: Model,
 
 
-    // preinitialize is an empty function by default. You can override it with a function
-    // or object.  preinitialize will run before any instantiation logic is run in the Collection.
+    /**
+     * Empty function by default. Override it with a function or object.
+     * `preinitialize` runs before any instantiation logic is run in the
+     * Collection.
+     */
     preinitialize() {},
 
-    // Initialize is an empty function by default. Override it with your own
-    // initialization logic.
+    /**
+     * Empty function by default. Override it with your own initialization
+     * logic.
+     */
     initialize() {},
 
-    // The JSON representation of a Collection is an array of the
-    // models' attributes.
+    /**
+     * The JSON representation of a Collection is an array of the models'
+     * attributes.
+     * @param {Object} [options] Passed through to each model's `toJSON`.
+     * @returns {Array<Object>}
+     */
     toJSON(options) {
       return this.map(function(model) { return model.toJSON(options); });
     },
 
-    // Proxy `Backbone.sync` by default.
+    /**
+     * Proxy `Backbone.sync` by default.
+     * @returns {*}
+     */
     sync() {
       return Backbone.sync.apply(this, arguments);
     },
 
-    // Add a model, or list of models to the set. `models` may be Backbone
-    // Models or raw JavaScript objects to be converted to Models, or any
-    // combination of the two.
+    /**
+     * Add a model, or list of models, to the set. `models` may be Backbone
+     * Models or raw JavaScript objects to be converted to Models, or any
+     * combination of the two.
+     * @param {Object|Backbone.Model|Array} models
+     * @param {Object} [options]
+     * @returns {Backbone.Model|Array<Backbone.Model>}
+     */
     add(models, options) {
       return this.set(models, _.extend({merge: false}, options, addOptions));
     },
 
-    // Remove a model, or a list of models from the set.
+    /**
+     * Remove a model, or a list of models, from the set.
+     * @param {Object|Backbone.Model|Array} models
+     * @param {Object} [options]
+     * @returns {Backbone.Model|Array<Backbone.Model>}
+     */
     remove(models, options) {
       options = _.extend({}, options);
       var singular = !_.isArray(models);
@@ -856,10 +1051,21 @@
       return singular ? removed[0] : removed;
     },
 
-    // Update a collection by `set`-ing a new list of models, adding new ones,
-    // removing models that are no longer present, and merging models that
-    // already exist in the collection, as necessary. Similar to **Model#set**,
-    // the core operation for updating the data contained by the collection.
+    /**
+     * Update a collection by `set`-ing a new list of models, adding new
+     * ones, removing models that are no longer present, and merging
+     * models that already exist in the collection, as necessary. Similar
+     * to `Model#set`, the core operation for updating the data contained
+     * by the collection.
+     * @param {Object|Backbone.Model|Array} models
+     * @param {Object} [options]
+     * @param {boolean} [options.add=true]
+     * @param {boolean} [options.remove=true]
+     * @param {boolean} [options.merge=true]
+     * @param {number} [options.at] Insert index (out-of-range or NaN is appended).
+     * @param {boolean} [options.parse] If true, run `models` through `this.parse()`.
+     * @returns {Backbone.Model|Array<Backbone.Model>|this}
+     */
     set(models, options) {
       if (models == null) return this;
 
@@ -980,10 +1186,14 @@
       return singular ? models[0] : models;
     },
 
-    // When you have more items than you want to add or remove individually,
-    // you can reset the entire set with a new list of models, without firing
-    // any granular `add` or `remove` events. Fires `reset` when finished.
-    // Useful for bulk operations and optimizations.
+    /**
+     * Reset the entire set with a new list of models, without firing any
+     * granular `add` or `remove` events. Fires `reset` when finished.
+     * Useful for bulk operations and optimizations.
+     * @param {Array<Object|Backbone.Model>} [models]
+     * @param {Object} [options]
+     * @returns {Array<Backbone.Model>}
+     */
     reset(models, options) {
       options = options ? _.clone(options) : {};
       for (var i = 0; i < this.models.length; i++) {
@@ -996,35 +1206,63 @@
       return models;
     },
 
-    // Add a model to the end of the collection.
+    /**
+     * Add a model to the end of the collection.
+     * @param {Object|Backbone.Model} model
+     * @param {Object} [options]
+     * @returns {Backbone.Model}
+     */
     push(model, options) {
       return this.add(model, _.extend({at: this.length}, options));
     },
 
-    // Remove a model from the end of the collection.
+    /**
+     * Remove a model from the end of the collection.
+     * @param {Object} [options]
+     * @returns {Backbone.Model|undefined}
+     */
     pop(options) {
       var model = this.at(this.length - 1);
       return this.remove(model, options);
     },
 
-    // Add a model to the beginning of the collection.
+    /**
+     * Add a model to the beginning of the collection.
+     * @param {Object|Backbone.Model} model
+     * @param {Object} [options]
+     * @returns {Backbone.Model}
+     */
     unshift(model, options) {
       return this.add(model, _.extend({at: 0}, options));
     },
 
-    // Remove a model from the beginning of the collection.
+    /**
+     * Remove a model from the beginning of the collection.
+     * @param {Object} [options]
+     * @returns {Backbone.Model|undefined}
+     */
     shift(options) {
       var model = this.at(0);
       return this.remove(model, options);
     },
 
-    // Slice out a sub-array of models from the collection.
+    /**
+     * Slice out a sub-array of models from the collection.
+     * @param {number} [begin]
+     * @param {number} [end]
+     * @returns {Array<Backbone.Model>}
+     */
     slice() {
       return slice.apply(this.models, arguments);
     },
 
-    // Get a model from the set by id, cid, model object with id or cid
-    // properties, or an attributes object that is transformed through modelId.
+    /**
+     * Get a model from the set by id, cid, model object with id or cid
+     * properties, or an attributes object that is transformed through
+     * `modelId`.
+     * @param {string|number|Object|Backbone.Model} obj
+     * @returns {Backbone.Model|undefined}
+     */
     get(obj) {
       if (obj == null) return void 0;
       return this._byId[obj] ||
@@ -1032,32 +1270,55 @@
         obj.cid && this._byId[obj.cid];
     },
 
-    // Returns `true` if the model is in the collection.
+    /**
+     * Returns `true` if the model is in the collection.
+     * @param {string|number|Object|Backbone.Model} obj
+     * @returns {boolean}
+     */
     has(obj) {
       return this.get(obj) != null;
     },
 
-    // Get the model at the given index.
+    /**
+     * Get the model at the given index. Negative indices count from the end.
+     * @param {number} index
+     * @returns {Backbone.Model|undefined}
+     */
     at(index) {
       if (index < 0) index += this.length;
       return this.models[index];
     },
 
-    // Return models with matching attributes. Useful for simple cases of
-    // `filter`.
+    /**
+     * Return models with matching attributes. Useful for simple cases of
+     * `filter`.
+     * @param {Object} attrs Partial attributes hash.
+     * @param {boolean} [first] If true, return only the first match.
+     * @returns {Array<Backbone.Model>|Backbone.Model|undefined}
+     */
     where(attrs, first) {
       return this[first ? 'find' : 'filter'](attrs);
     },
 
-    // Return the first model with matching attributes. Useful for simple cases
-    // of `find`.
+    /**
+     * Return the first model with matching attributes. Useful for simple
+     * cases of `find`.
+     * @param {Object} attrs Partial attributes hash.
+     * @returns {Backbone.Model|undefined}
+     */
     findWhere(attrs) {
       return this.where(attrs, true);
     },
 
-    // Force the collection to re-sort itself. You don't need to call this under
-    // normal circumstances, as the set will maintain sort order as each item
-    // is added.
+    /**
+     * Force the collection to re-sort itself. You don't need to call this
+     * under normal circumstances, as the set will maintain sort order as
+     * each item is added.
+     * @param {Object} [options]
+     * @param {boolean} [options.silent] If true, suppress the `sort` event.
+     * @returns {this}
+     * @throws {Error} If the collection has no `comparator`.
+     */
     sort(options) {
       var comparator = this.comparator;
       if (!comparator) throw new Error('Cannot sort a set without a comparator');
@@ -1076,14 +1337,25 @@
       return this;
     },
 
-    // Pluck an attribute from each model in the collection.
+    /**
+     * Pluck an attribute from each model in the collection.
+     * @param {string} attr Attribute name.
+     * @returns {Array<*>}
+     */
     pluck(attr) {
       return this.map(attr + '');
     },
 
-    // Fetch the default set of models for this collection, resetting the
-    // collection when they arrive. If `reset: true` is passed, the response
-    // data will be passed through the `reset` method instead of `set`.
+    /**
+     * Fetch the default set of models for this collection, resetting the
+     * collection when they arrive. If `reset: true` is passed, the
+     * response data will be passed through the `reset` method instead of
+     * `set`.
+     * @param {Object} [options]
+     * @param {boolean} [options.reset] Use `reset` instead of `set`.
+     * @param {boolean} [options.parse=true] Run response through `this.parse()`.
+     * @returns {*} The thenable from `Backbone.sync`.
+     */
     fetch(options) {
       options = _.extend({parse: true}, options);
       var success = options.success;
@@ -1098,9 +1370,15 @@
       return this.sync('read', this, options);
     },
 
-    // Create a new instance of a model in this collection. Add the model to the
-    // collection immediately, unless `wait: true` is passed, in which case we
-    // wait for the server to agree.
+    /**
+     * Create a new instance of a model in this collection. Adds the model
+     * to the collection immediately, unless `wait: true` is passed, in
+     * which case waits for the server to agree.
+     * @param {Object|Backbone.Model} model
+     * @param {Object} [options]
+     * @param {boolean} [options.wait] If true, wait for server before adding.
+     * @returns {Backbone.Model|false} The new model, or `false` if invalid.
+     */
     create(model, options) {
       options = options ? _.clone(options) : {};
       var wait = options.wait;
@@ -1131,13 +1409,22 @@
       return model;
     },
 
-    // **parse** converts a response into a list of models to be added to the
-    // collection. The default implementation is just to pass it through.
+    /**
+     * Converts a response into a list of models to be added to the
+     * collection. The default implementation passes through unchanged.
+     * @param {*} resp Server response.
+     * @param {Object} [options]
+     * @returns {Array<Object>}
+     */
     parse(resp, options) {
       return resp;
     },
 
-    // Create a new collection with an identical list of models as this one.
+    /**
+     * Create a new collection with an identical list of models as this
+     * one.
+     * @returns {Backbone.Collection}
+     */
     clone() {
       return new this.constructor(this.models, {
         model: this.model,
@@ -1145,22 +1432,36 @@
       });
     },
 
-    // Define how to uniquely identify models in the collection.
+    /**
+     * Define how to uniquely identify models in the collection.
+     * @param {Object} attrs Model attributes.
+     * @param {string} [idAttribute] Override the default id attribute.
+     * @returns {string|number}
+     */
     modelId(attrs, idAttribute) {
       return attrs[idAttribute || this.model.prototype.idAttribute || 'id'];
     },
 
-    // Get an iterator of all models in this collection.
+    /**
+     * Get an iterator of all models in this collection.
+     * @returns {CollectionIterator}
+     */
     values() {
       return new CollectionIterator(this, ITERATOR_VALUES);
     },
 
-    // Get an iterator of all model IDs in this collection.
+    /**
+     * Get an iterator of all model IDs in this collection.
+     * @returns {CollectionIterator}
+     */
     keys() {
       return new CollectionIterator(this, ITERATOR_KEYS);
     },
 
-    // Get an iterator of all [ID, model] tuples in this collection.
+    /**
+     * Get an iterator of all `[ID, model]` tuples in this collection.
+     * @returns {CollectionIterator}
+     */
     entries() {
       return new CollectionIterator(this, ITERATOR_KEYSVALUES);
     },
