@@ -1,4 +1,4 @@
-import Backbone from 'backbone';
+import Backbone from '@compuzz-eventus/backbone';
 
 // Provide useful information when things go wrong.
 export default function() {

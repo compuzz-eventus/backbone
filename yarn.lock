@@ -98,6 +98,30 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@compuzz-eventus/backbone@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "@compuzz-eventus/backbone@workspace:."
+  dependencies:
+    "@eslint/js": "npm:^10.0.1"
+    "@stylistic/eslint-plugin": "npm:^5.10.0"
+    "@vitest/coverage-v8": "npm:^4.1.6"
+    cpy-cli: "npm:^7.0.0"
+    docco: "npm:^0.9.1"
+    eslint: "npm:^10.3.0"
+    globals: "npm:^17.6.0"
+    jquery: "npm:^4.0.0"
+    jsdom: "npm:^29.1.1"
+    lint-staged: "npm:^17.0.4"
+    qunit: "npm:^2.17.2"
+    replace-in-file: "npm:^8.4.0"
+    rollup: "npm:^4.60.3"
+    simple-git-hooks: "npm:^2.13.1"
+    terser: "npm:^5.47.1"
+    underscore: "npm:^1.8.3"
+    vitest: "npm:^4.1.6"
+  languageName: unknown
+  linkType: soft
+
 "@csstools/color-helpers@npm:^6.0.2":
   version: 6.0.2
   resolution: "@csstools/color-helpers@npm:6.0.2"
@@ -977,30 +1001,6 @@ __metadata:
   checksum: 10c0/35e57b754ba63287358094d4f7ae8de2de27286fb4e76a1fbf28b2e67e3b670b59c3f511882473d0fd2cdbaa260062e3cd4f216b724c70032e2b09e5cebbd618
   languageName: node
   linkType: hard
-
-"backbone@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "backbone@workspace:."
-  dependencies:
-    "@eslint/js": "npm:^10.0.1"
-    "@stylistic/eslint-plugin": "npm:^5.10.0"
-    "@vitest/coverage-v8": "npm:^4.1.6"
-    cpy-cli: "npm:^7.0.0"
-    docco: "npm:^0.9.1"
-    eslint: "npm:^10.3.0"
-    globals: "npm:^17.6.0"
-    jquery: "npm:^4.0.0"
-    jsdom: "npm:^29.1.1"
-    lint-staged: "npm:^17.0.4"
-    qunit: "npm:^2.17.2"
-    replace-in-file: "npm:^8.4.0"
-    rollup: "npm:^4.60.3"
-    simple-git-hooks: "npm:^2.13.1"
-    terser: "npm:^5.47.1"
-    underscore: "npm:^1.8.3"
-    vitest: "npm:^4.1.6"
-  languageName: unknown
-  linkType: soft
 
 "balanced-match@npm:^4.0.2":
   version: 4.0.4

@@ -1,5 +1,5 @@
 {
-  "name": "backbone",
+  "name": "@compuzz-eventus/backbone",
   "description": "Give your JS App some Backbone with Models, Views, Collections, and Events.",
   "url": "http://backbonejs.org",
   "keywords": [
@@ -37,7 +37,7 @@
     "test": "vitest run && node test/model-inheritance.js && yarn lint",
     "test:coverage": "vitest run --coverage",
     "build": "terser backbone.js --compress --mangle --source-map \"url='backbone-min.js.map'\" --comments \"/^!|@preserve|@license|@cc_on/i\" -o backbone-min.js",
-    "build-debug": "rollup -e backbone -f umd -g backbone:Backbone -n Backbone.debugInfo -o debug-info.js --no-strict modules/debug-info.js",
+    "build-debug": "rollup -e @compuzz-eventus/backbone -f umd -g @compuzz-eventus/backbone:Backbone -n Backbone.debugInfo -o debug-info.js --no-strict modules/debug-info.js",
     "alias-sourcemap": "cpy --rename=backbone-min.map backbone-min.js.map .",
     "doc": "docco backbone.js && docco examples/todos/todos.js examples/backbone.localStorage.js",
     "lint": "eslint backbone.js test/*.js modules/*.js",

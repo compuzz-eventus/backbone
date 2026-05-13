@@ -25,25 +25,30 @@ Headline changes shipped on top of upstream 1.6.0:
 - **Memory leak fixes** in `Events.listenTo` and `Events.stopListening` (1.6.3)
 - **Sync no longer mutates caller options** (1.6.3)
 - **Verified against jQuery 4.0** (1.6.3)
-- **0 vulnerabilities** under `npm audit` / `yarn npm audit`
+- **0 vulnerabilities** under `yarn npm audit`
 
 ## Install
 
+This fork is not published to the public npm registry (the canonical
+`backbone` name belongs to upstream). Install it directly from the
+GitHub URL:
+
 ```sh
-npm install backbone
+yarn add github:compuzz-eventus/backbone#1.7.0
 # or
-yarn add backbone
+npm install github:compuzz-eventus/backbone#1.7.0
 ```
 
-Both ESM and CommonJS are supported:
+Both ESM and CommonJS are supported (the package's `exports` map
+covers both entry points):
 
 ```js
 // ESM
-import Backbone from 'backbone';
-import { Model, Collection, View } from 'backbone';
+import Backbone from '@compuzz-eventus/backbone';
+import { Model, Collection, View } from '@compuzz-eventus/backbone';
 
 // CommonJS
-const Backbone = require('backbone');
+const Backbone = require('@compuzz-eventus/backbone');
 ```
 
 ## Upstream docs

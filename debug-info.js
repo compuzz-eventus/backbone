@@ -1,6 +1,6 @@
 (function (global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('backbone')) :
-  typeof define === 'function' && define.amd ? define(['backbone'], factory) :
+  typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('@compuzz-eventus/backbone')) :
+  typeof define === 'function' && define.amd ? define(['@compuzz-eventus/backbone'], factory) :
   (global = typeof globalThis !== 'undefined' ? globalThis : global || self, (global.Backbone = global.Backbone || {}, global.Backbone.debugInfo = factory(global.Backbone)));
 })(this, (function (Backbone) {
   // Provide useful information when things go wrong.
