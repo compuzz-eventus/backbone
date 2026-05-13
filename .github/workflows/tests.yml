@@ -28,9 +28,7 @@ jobs:
       - name: Enable Corepack
         run: corepack enable
       - name: Install dependencies
-        run: |
-          yarn install --immutable
-          yarn add --dev karma-cli karma-sauce-launcher
+        run: yarn install --immutable
       - name: Test
         run: yarn test
       - name: Test in Sauce Labs
