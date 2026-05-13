@@ -10,7 +10,7 @@ $(function(){
   // ----------
 
   // Our basic **Todo** model has `title`, `order`, and `done` attributes.
-  var Todo = Backbone.Model.extend({
+  const Todo = Backbone.Model.extend({
 
     // Default attributes for the todo item.
     defaults: function() {
@@ -33,7 +33,7 @@ $(function(){
 
   // The collection of todos is backed by *localStorage* instead of a remote
   // server.
-  var TodoList = Backbone.Collection.extend({
+  const TodoList = Backbone.Collection.extend({
 
     // Reference to this collection's model.
     model: Todo,
@@ -64,13 +64,13 @@ $(function(){
   });
 
   // Create our global collection of **Todos**.
-  var Todos = new TodoList;
+  const Todos = new TodoList();
 
   // Todo Item View
   // --------------
 
   // The DOM element for a todo item...
-  var TodoView = Backbone.View.extend({
+  const TodoView = Backbone.View.extend({
 
     //... is a list tag.
     tagName:  "li",
@@ -141,7 +141,7 @@ $(function(){
   // ---------------
 
   // Our overall **AppView** is the top-level piece of UI.
-  var AppView = Backbone.View.extend({
+  const AppView = Backbone.View.extend({
 
     // Instead of generating a new element, bind to the existing skeleton of
     // the App already present in the HTML.
@@ -229,6 +229,7 @@ $(function(){
   });
 
   // Finally, we kick things off by creating the **App**.
-  var App = new AppView;
+  // eslint-disable-next-line no-unused-vars
+  const App = new AppView();
 
 });

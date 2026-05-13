@@ -98,7 +98,7 @@ to persist Backbone models within your browser.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>  <span class="hljs-keyword">var</span> <span class="hljs-title class_">Todo</span> = <span class="hljs-title class_">Backbone</span>.<span class="hljs-property">Model</span>.<span class="hljs-title function_">extend</span>({</pre></div></div>
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-keyword">const</span> <span class="hljs-title class_">Todo</span> = <span class="hljs-title class_">Backbone</span>.<span class="hljs-property">Model</span>.<span class="hljs-title function_">extend</span>({</pre></div></div>
             
         </li>
         
@@ -167,7 +167,7 @@ server.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>  <span class="hljs-keyword">var</span> <span class="hljs-title class_">TodoList</span> = <span class="hljs-title class_">Backbone</span>.<span class="hljs-property">Collection</span>.<span class="hljs-title function_">extend</span>({</pre></div></div>
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-keyword">const</span> <span class="hljs-title class_">TodoList</span> = <span class="hljs-title class_">Backbone</span>.<span class="hljs-property">Collection</span>.<span class="hljs-title function_">extend</span>({</pre></div></div>
             
         </li>
         
@@ -282,7 +282,7 @@ GUID in the database. This generates the next order number for new items.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>  <span class="hljs-keyword">var</span> <span class="hljs-title class_">Todos</span> = <span class="hljs-keyword">new</span> <span class="hljs-title class_">TodoList</span>;</pre></div></div>
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-keyword">const</span> <span class="hljs-title class_">Todos</span> = <span class="hljs-keyword">new</span> <span class="hljs-title class_">TodoList</span>();</pre></div></div>
             
         </li>
         
@@ -310,7 +310,7 @@ GUID in the database. This generates the next order number for new items.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>  <span class="hljs-keyword">var</span> <span class="hljs-title class_">TodoView</span> = <span class="hljs-title class_">Backbone</span>.<span class="hljs-property">View</span>.<span class="hljs-title function_">extend</span>({</pre></div></div>
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-keyword">const</span> <span class="hljs-title class_">TodoView</span> = <span class="hljs-title class_">Backbone</span>.<span class="hljs-property">View</span>.<span class="hljs-title function_">extend</span>({</pre></div></div>
             
         </li>
         
@@ -523,7 +523,7 @@ app, we set a direct reference on the model for convenience.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>  <span class="hljs-keyword">var</span> <span class="hljs-title class_">AppView</span> = <span class="hljs-title class_">Backbone</span>.<span class="hljs-property">View</span>.<span class="hljs-title function_">extend</span>({</pre></div></div>
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-keyword">const</span> <span class="hljs-title class_">AppView</span> = <span class="hljs-title class_">Backbone</span>.<span class="hljs-property">View</span>.<span class="hljs-title function_">extend</span>({</pre></div></div>
             
         </li>
         
@@ -727,11 +727,12 @@ persisting it to <em>localStorage</em>.</p>
               <div class="sswrap ">
                 <a class="ss" href="#section-39">&#x00a7;</a>
               </div>
-              <p>Finally, we kick things off by creating the <strong>App</strong>.</p>
+              <p>Finally, we kick things off by creating the <strong>App</strong>.
+eslint-disable-next-line no-unused-vars</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>  <span class="hljs-keyword">var</span> <span class="hljs-title class_">App</span> = <span class="hljs-keyword">new</span> <span class="hljs-title class_">AppView</span>;
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-keyword">const</span> <span class="hljs-title class_">App</span> = <span class="hljs-keyword">new</span> <span class="hljs-title class_">AppView</span>();
 
 });</pre></div></div>
             

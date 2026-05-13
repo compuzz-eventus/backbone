@@ -1,22 +1,25 @@
 # Security Policy
 
+This policy covers the `compuzz-eventus/backbone` fork, not upstream
+[`jashkenas/backbone`][upstream]. For vulnerabilities specific to the
+upstream codebase, please report to the upstream maintainers instead.
+
+[upstream]: https://github.com/jashkenas/backbone
+
 ## Supported Versions
 
-We currently support the following versions of Backbone with security updates:
+We provide security fixes for:
 
-- the latest commit on the `master` branch (published as "edge" on the
-  [project website][website]);
-- the 1.x release tagged as [latest][npm-latest] on npm;
-- any release tagged as [preview][npm-preview] on npm, if present.
+- the latest commit on the `master` branch of this fork;
+- the most recent tagged release (see [tags][tags] / [CHANGELOG.md](CHANGELOG.md)).
 
-[website]: https://backbonejs.org
-[npm-latest]: https://www.npmjs.com/package/backbone/v/latest
-[npm-preview]: https://www.npmjs.com/package/backbone/v/preview
+[tags]: https://github.com/compuzz-eventus/backbone/tags
 
 ## Reporting a Vulnerability
 
-Please report security issues by sending an email to
-dev@juliangonggrijp.com and jashkenas@gmail.com.
+Please report security issues privately to
+**christopher.rombach@mobiolink.com**, ideally with the subject prefix
+`[backbone-security]`.
 
 Do __not__ submit an issue ticket or pull request or otherwise publicly
 disclose the issue.
