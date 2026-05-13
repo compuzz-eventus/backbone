@@ -55,6 +55,16 @@
     "{backbone.js,modules/**/*.js,test/**/*.js}": "eslint --fix"
   },
   "main": "backbone.js",
+  "exports": {
+    ".": {
+      "import": "./backbone.mjs",
+      "require": "./backbone.js",
+      "default": "./backbone.js"
+    },
+    "./debug-info": "./debug-info.js",
+    "./modules/debug-info": "./modules/debug-info.js",
+    "./package.json": "./package.json"
+  },
   "version": "1.7.0",
   "license": "MIT",
   "packageManager": "yarn@4.14.1",
@@ -69,6 +79,7 @@
   },
   "files": [
     "backbone.js",
+    "backbone.mjs",
     "backbone-min.js",
     "backbone-min.js.map",
     "backbone-min.map",
