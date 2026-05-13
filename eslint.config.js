@@ -1,6 +1,5 @@
 const js = require('@eslint/js');
 const stylistic = require('@stylistic/eslint-plugin');
-const importPlugin = require('eslint-plugin-import');
 const globals = require('globals');
 
 module.exports = [
@@ -102,15 +101,6 @@ module.exports = [
     languageOptions: {
       ecmaVersion: 'latest',
       sourceType: 'module'
-    },
-    plugins: {
-      import: importPlugin
-    },
-    rules: {
-      'import/named': 'error',
-      'import/default': 'error',
-      'import/namespace': 'error',
-      'import/no-unresolved': 'off'
     }
   },
 

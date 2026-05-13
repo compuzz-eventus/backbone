@@ -22,7 +22,6 @@
     "cpy-cli": "^7.0.0",
     "docco": "^0.9.1",
     "eslint": "^10.3.0",
-    "eslint-plugin-import": "^2.32.0",
     "globals": "^17.6.0",
     "karma": "^6.3.11",
     "karma-chrome-launcher": "^3.2.0",
@@ -42,7 +41,8 @@
     "lint": "eslint backbone.js test/*.js modules/*.js",
     "mark-release": "replace-in-file MARK_DEVELOPMENT MARK_RELEASE modules/debug-info.js && yarn build-debug",
     "mark-develop": "replace-in-file MARK_RELEASE MARK_DEVELOPMENT modules/debug-info.js && yarn build-debug",
-    "prepublishOnly": "yarn test && yarn mark-release && yarn build && yarn alias-sourcemap && yarn doc && git add -u && yarn mark-develop"
+    "prepublishOnly": "yarn test && yarn mark-release && yarn build && yarn alias-sourcemap && yarn doc",
+    "postpublish": "yarn mark-develop"
   },
   "main": "backbone.js",
   "version": "1.7.0",

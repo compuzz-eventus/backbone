@@ -1,9 +1,10 @@
 ## How to Open a Backbone.js Ticket
 
 * Do not use tickets to ask for help with (debugging) your application. Ask on
-the [mailing list](https://groups.google.com/forum/#!forum/backbonejs),
-in the IRC channel (`#documentcloud` on Freenode), or if you understand your
-specific problem, on [StackOverflow](http://stackoverflow.com/questions/tagged/backbone.js).
+the [Matrix room](https://matrix.to/#/#jashkenas_backbone:gitter.im),
+the [Google Group](https://groups.google.com/g/backbonejs), or if you
+understand your specific problem, on
+[StackOverflow](http://stackoverflow.com/questions/tagged/backbone.js).
 
 * Before you open a ticket or send a pull request,
 [search](https://github.com/compuzz-eventus/backbone/issues) for previous
@@ -22,3 +23,20 @@ the `index.html`.
 minified `backbone-min.js` file. We'll do that before cutting a new release.
 
 * All pull requests should be made to the `master` branch.
+
+## Development setup
+
+This fork uses **Yarn 4** (pinned via Corepack and the `packageManager` field
+in `package.json`). Once Node 18+ is installed, Corepack will pick up the
+right Yarn version automatically:
+
+```sh
+corepack enable
+yarn install
+yarn test       # karma headless + lint
+yarn lint       # ESLint only
+yarn build      # regenerate backbone-min.js
+```
+
+Do not run `npm install` — it would create a `package-lock.json` that
+conflicts with `yarn.lock`.

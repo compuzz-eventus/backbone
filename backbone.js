@@ -1722,7 +1722,7 @@
   var fetchAjax = function(options) {
     var url = options.url;
     var method = (options.type || 'GET').toUpperCase();
-    var headers = _.extend({}, options.headers);
+    var headers = Object.assign({}, options.headers);
     if (options.contentType) headers['Content-Type'] = options.contentType;
     var body;
 
