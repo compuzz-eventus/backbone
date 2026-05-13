@@ -1,7 +1,7 @@
 // Vitest setup file: runs once per test file, before the test file
-// itself is imported. Equivalent of Karma's vendor + setup script-tag
-// chain (`test/vendor/jquery.js`, `underscore.js`, then `backbone.js`,
-// `debug-info.js`, then `test/setup/*.js`).
+// itself is imported. Equivalent of what Karma used to do via script
+// tags: install jQuery + Underscore on the window, load Backbone +
+// debug-info, then the legacy `test/setup/*.js` per-test hooks.
 
 import './_qunit-shim.js';
 
