@@ -34,9 +34,9 @@ This fork is not published to the public npm registry (the canonical
 GitHub URL:
 
 ```sh
-yarn add github:compuzz-eventus/backbone#1.7.0
+yarn add github:compuzz-eventus/backbone#1.7.1
 # or
-npm install github:compuzz-eventus/backbone#1.7.0
+npm install github:compuzz-eventus/backbone#1.7.1
 ```
 
 Both ESM and CommonJS are supported (the package's `exports` map
