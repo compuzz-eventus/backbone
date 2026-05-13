@@ -1763,8 +1763,7 @@
         var parseJson = options.dataType == null || options.dataType === 'json';
         var data = text;
         if (parseJson && text) {
-          try { data = JSON.parse(text); }
-          catch (e) {
+          try { data = JSON.parse(text); } catch (e) {
             if (options.error) options.error(xhr, 'parsererror', e.message);
             throw e;
           }
