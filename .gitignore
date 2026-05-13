@@ -5,3 +5,12 @@ node_modules
 bower_components
 .idea
 .claude
+
+# Yarn 4 (Berry) — node-modules linker, no Zero-Install
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+.pnp.*

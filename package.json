@@ -34,19 +34,25 @@
     "uglify-js": "^3.14.5"
   },
   "scripts": {
-    "test": "karma start && coffee test/model.coffee && npm run lint",
+    "test": "karma start && coffee test/model.coffee && yarn lint",
     "build": "uglifyjs backbone.js --mangle --source-map url=backbone-min.js.map -o backbone-min.js",
-    "build-debug": "npx rollup -e backbone -f umd -g backbone:Backbone -n Backbone.debugInfo -o debug-info.js --no-strict modules/debug-info.js",
+    "build-debug": "rollup -e backbone -f umd -g backbone:Backbone -n Backbone.debugInfo -o debug-info.js --no-strict modules/debug-info.js",
     "alias-sourcemap": "cpy --rename=backbone-min.map backbone-min.js.map .",
     "doc": "docco backbone.js && docco examples/todos/todos.js examples/backbone.localStorage.js",
     "lint": "eslint backbone.js test/*.js modules/*.js",
-    "mark-release": "replace-in-file MARK_DEVELOPMENT MARK_RELEASE modules/debug-info.js && npm run build-debug",
-    "mark-develop": "replace-in-file MARK_RELEASE MARK_DEVELOPMENT modules/debug-info.js && npm run build-debug",
-    "prepublishOnly": "npm run test && npm run mark-release && npm run build && npm run alias-sourcemap && npm run doc && git add -u && npm run mark-develop"
+    "mark-release": "replace-in-file MARK_DEVELOPMENT MARK_RELEASE modules/debug-info.js && yarn build-debug",
+    "mark-develop": "replace-in-file MARK_RELEASE MARK_DEVELOPMENT modules/debug-info.js && yarn build-debug",
+    "prepublishOnly": "yarn test && yarn mark-release && yarn build && yarn alias-sourcemap && yarn doc && git add -u && yarn mark-develop"
   },
   "main": "backbone.js",
   "version": "1.6.3",
   "license": "MIT",
+  "packageManager": "yarn@4.14.1",
+  "dependenciesMeta": {
+    "puppeteer": {
+      "built": true
+    }
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/compuzz-eventus/backbone.git"

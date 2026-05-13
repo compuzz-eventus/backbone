@@ -4,7 +4,7 @@ process.env.CHROME_BIN = process.env.CHROME_BIN || require('puppeteer').executab
 
 // Note some browser launchers should be installed before using karma start.
 // For example:
-// npm install karma-firefox-launcher
+// yarn add --dev karma-firefox-launcher
 // karma start --browsers=Firefox
 module.exports = function(config) {
   config.set({
